@@ -1,0 +1,5 @@
+SSDs store data in flash memory cells that are grouped into pages typically of 4 to 16 kB, grouped together into blocks of typically 128 to 512 pages, e.g., 512 kB per block with 4 kB pages in 128-page blocks.
+
+An SSD write operation can be done on a single page but, due to hardware limitations, erase commands always affect entire blocks
+
+ The non-queued nature of the command requires the driver to first wait for all outstanding commands to be finished, issue the TRIM command, then resume normal commands. 

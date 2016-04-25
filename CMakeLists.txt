@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-SET(execName Trim_Simulator-0.0.1)
+SET(execName TS)
 
 SET(EXECUTABLE_OUTPUT_PATH "./bin")
 # Mandatory

@@ -6,3 +6,11 @@
 
 //Local libraries
 #include "sequential_trim.h"
+
+Sequential_Trim::Sequential_Trim()	{
+
+}
+
+Sequential_Trim::~Sequential_Trim()	{
+
+}
