@@ -14,3 +14,7 @@ Sequential_Trim::Sequential_Trim()	{
 Sequential_Trim::~Sequential_Trim()	{
 
 }
+
+void Sequential_Trim::startSimulation()	{
+	
+}

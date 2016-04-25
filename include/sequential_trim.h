@@ -7,13 +7,16 @@
 
 
 //Local libraries
+#include "base_trim.h"
 
-class Sequential_Trim	{
+
+class Sequential_Trim: public Trim	{
 	private:
 	protected:
 	public:
 		Sequential_Trim();
 		~Sequential_Trim();
+		void startSimulation();
 };
 	
 #endif

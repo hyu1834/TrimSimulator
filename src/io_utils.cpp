@@ -6,6 +6,6 @@ void error_message(std::string em)	{
 }
 
 void usage_message(std::string um)	{
-	std::cerr << "Usage: " << em << "\n";
-	exit(-1)
+	std::cerr << "Usage: " << um << "\n";
+	exit(-1);
 }

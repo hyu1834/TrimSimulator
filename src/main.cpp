@@ -9,7 +9,7 @@
 //Local libraries
 #include "io_utils.h"
 
-std::string version="0.0.1"
+std::string version="0.0.1";
 
 void printHelp()	{
 	std::clog<< "\nNAME\n"
@@ -26,7 +26,7 @@ void printHelp()	{
 int main(int argc, char** argv)	{
 	// check if there are more than 2 arguements
 	if(argc<2)	{
-		usage_message("Trim_Simulator-"+version+"[options] <Simulation Mode>\n")
+		usage_message("Trim_Simulator-"+version+"[options] <Simulation Mode>\n");
 	}
 
 	//simulation mode variables

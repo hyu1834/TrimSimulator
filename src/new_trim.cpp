@@ -14,3 +14,7 @@ New_Trim::New_Trim()	{
 New_Trim::~New_Trim()	{
 	
 }
+
+void New_Trim::startSimulation()	{
+	
+}

@@ -7,13 +7,16 @@
 
 
 //Local libraries
+#include "base_trim.h"
 
-class New_Trim	{
+
+class New_Trim: public Trim	{
 	private:
 	protected:
 	public:
 		New_Trim();
 		~New_Trim();
+		void startSimulation();
 };
 	
 #endif

@@ -14,3 +14,7 @@ Queued_Trim::Queued_Trim()	{
 Queued_Trim::~Queued_Trim()	{
 
 }
+
+void Queued_Trim::startSimulation()	{
+	
+}
