@@ -6,8 +6,11 @@
 //Third parties libraries
 
 
-//Local libraries
+//Local Includes
 #include "io_utils.h"
+#include "sequential_trim_simulator.h"
+#include "queued_trim_simulator.h"
+
 
 std::string version="0.0.1";
 
@@ -43,6 +46,12 @@ int main(int argc, char** argv)	{
 			}//end if strcasecmp
 			else if((strcasecmp(argv[i]+1,"s")==0)|| (strcasecmp(argv[i]+1,"-sequential")==0))	{
 				sequential_trim=true;
+				// ++i;
+				// if(i<argc)	{
+				// 	inFilePath[1] = verifyDirectoryPath(argv[i]);
+				// }//end if
+				// else
+				// 	std::cerr<<"Dangling -l or --lasfdata flag on command line\n";
 			}//end else if
 			else if((strcasecmp(argv[i]+1,"q")==0)|| (strcasecmp(argv[i]+1,"-queued")==0))	{
 				queued_trim=true;
@@ -53,5 +62,25 @@ int main(int argc, char** argv)	{
 		}
 	}//end for
 
+	if(sequential_trim)	{
+		Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(2);
+		sts->startSimulation();
+	}
+
+	if(queued_trim)	{
+		Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(2);
+		qts->startSimulation();
+	}
+
+	if(new_trim)	{
+
+	}
+
 	return 0;
 }
+
+
+
+
+
+
