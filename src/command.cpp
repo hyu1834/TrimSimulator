@@ -17,9 +17,9 @@ double Command::getIssueTime()	{
 	return issueTime;
 }
 
-double Command::getProcessTime() {
-	return processTime;
-}
+// double Command::getProcessTime() {
+// 	return processTime;
+// }
 
 char Command::getType() {
 	return type;

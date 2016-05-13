@@ -9,6 +9,7 @@
 
 
 //Local Includes
+#include "macro.h"
 #include "io_utils.h"
 #include "sequential_trim_simulator.h"
 #include "queued_trim_simulator.h"
@@ -66,6 +67,10 @@ int main(int argc, char** argv)	{
 	bool queued_trim=false;
 	bool new_trim=false;
 
+	double readProcessTime = CLOCK_SPEED * 25.0,  
+		   writeProcessTime = CLOCK_SPEED * 200.0, 
+		   trimProcessTime = CLOCK_SPEED * 2000.0;
+
 	std::string procedureFilePath = "";
 
 	/*Parse the command line and load all input files*/
@@ -104,12 +109,12 @@ int main(int argc, char** argv)	{
 
 		if(sequential_trim)	{
 			Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(commands);
-			sts->startSimulation();
+			sts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 		}
 
 		if(queued_trim)	{
 			Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(commands);
-			qts->startSimulation();
+			qts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 		}
 
 		if(new_trim)	{

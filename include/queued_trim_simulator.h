@@ -18,9 +18,9 @@ class Queued_Trim_Simulator: public Simulator	{
 		std::queue<Command*> storageQueue;
 	protected:
 	public:
-		Queued_Trim_Simulator(std::vector<Command*> commands);
+		Queued_Trim_Simulator(std::vector<Command*>& commands);
 		~Queued_Trim_Simulator();
-		void startSimulation();
+		void startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime);
 };
 	
 #endif

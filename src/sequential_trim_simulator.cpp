@@ -1,21 +1,22 @@
 #include "sequential_trim_simulator.h"
 
-Sequential_Trim_Simulator::Sequential_Trim_Simulator(std::vector<Command*> commands):Simulator(commands)	{
+Sequential_Trim_Simulator::Sequential_Trim_Simulator(std::vector<Command*>& commands):Simulator(commands)	{
 
 }
 
 Sequential_Trim_Simulator::~Sequential_Trim_Simulator()	{
-
+	commandPtr = NULL;
 }
 
-void Sequential_Trim_Simulator::startSimulation()	{
+void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime)	{
 	int commandCounter = 0;
 	bool driverBusy = false;
 	double driverBusyTime = 0, totalBusyTime = 0;
 
-
+	std::cout<<commandPtr->size()<<"\n";
 	// if there are no more command to issue, end the simulation
 	while(commandCounter < commandPtr->size())	{
+		
 		Command* nextCommand = commandPtr->at(commandCounter);
 		if(nextCommand->getIssueTime() == clock)	{
 			// put the command in to queue
@@ -31,8 +32,8 @@ void Sequential_Trim_Simulator::startSimulation()	{
 
 		// check if simulator can execute any command
 		if(!driverBusy)	{
-			Trim_Command* nextTrimCommand;
-			IO_Command* nextIOCommand;
+			Trim_Command* nextTrimCommand = NULL;
+			IO_Command* nextIOCommand = NULL;
 
 			// check both queue, see which one is not empty
 			if(!trimQueue.empty())	{
@@ -43,30 +44,34 @@ void Sequential_Trim_Simulator::startSimulation()	{
 			}
 
 			// if both there are command from either queue
-			if(nextTrimCommand && nextIOCommand)	{
+			if(nextTrimCommand != NULL && nextIOCommand != NULL)	{
 				double timeDiff = nextIOCommand->getIssueTime() - nextTrimCommand->getIssueTime();
+				// TRIM
 				if(timeDiff > 0)	{
 					// execute the command
-					driverBusyTime += nextTrimCommand->getProcessTime();
+					driverBusyTime += trimProcessTime;
 
 					// pop it from the queue
 					trimQueue.pop();
 				}
+				// Normal IO
 				else	{
-					driverBusyTime = nextIOCommand->getProcessTime();
+					driverBusyTime += (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
 					ioQueue.pop();
 				}
 			}
 			// if there is some trim command in trim queue
-			else if(nextTrimCommand)	{
+			else if(nextTrimCommand != NULL)	{
 				// execute the command
-				driverBusyTime += nextTrimCommand->getProcessTime();
+				driverBusyTime += trimProcessTime;
 				// pop it from the queue
 				trimQueue.pop();
 			}
 			// if there is some trim command in io queue
-			else if(nextIOCommand)	{
-				driverBusyTime = nextIOCommand->getProcessTime();
+			else if(nextIOCommand != NULL)	{
+				driverBusyTime += (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
+
+				// driverBusyTime = nextIOCommand->getProcessTime();
 				ioQueue.pop();
 			}
 
@@ -83,6 +88,6 @@ void Sequential_Trim_Simulator::startSimulation()	{
 		clock += CLOCK_SPEED;
 	}
 
-	// totalBusyTime/clock;
+	std::cout<<"System was busy with I/O "<< totalBusyTime/clock*100<<"%% of time\n";
 
 }

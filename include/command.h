@@ -27,7 +27,7 @@ class Command 	{
 		Command(double issueTime, char type);
 		~Command();
 		double getIssueTime();
-		double getProcessTime();
+		// double getProcessTime();
 		char getType();
 };
 

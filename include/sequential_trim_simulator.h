@@ -25,9 +25,9 @@ class Sequential_Trim_Simulator: public Simulator	{
 
 	protected:
 	public:
-		Sequential_Trim_Simulator(std::vector<Command*> commands);
+		Sequential_Trim_Simulator(std::vector<Command*>& commands);
 		~Sequential_Trim_Simulator();
-		void startSimulation();
+		void startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime);
 };
 	
 #endif
