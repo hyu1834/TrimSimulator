@@ -13,22 +13,25 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 	bool driverBusy = false;
 	double driverBusyTime = 0, totalBusyTime = 0;
 
-	std::cout<<commandPtr->size()<<"\n";
+	// std::cout<<commandPtr->size()<<"\n";
 	// if there are no more command to issue, end the simulation
-	while(commandCounter < commandPtr->size())	{
-		
-		Command* nextCommand = commandPtr->at(commandCounter);
-		if(nextCommand->getIssueTime() == clock)	{
-			// put the command in to queue
-			if(nextCommand->getType() == TRIM_COMMAND)	{
-				trimQueue.push((Trim_Command*)nextCommand);
+	while(1)	{
+		if(commandCounter < commandPtr->size())	{
+			Command* nextCommand = commandPtr->at(commandCounter);
+			if(nextCommand->getIssueTime() <= clock)	{
+				// put the command in to queue
+				if(nextCommand->getType() == TRIM_COMMAND)	{
+					trimQueue.push((Trim_Command*)nextCommand);
+				}
+				else	{
+					ioQueue.push((IO_Command*)nextCommand);
+				}
+				// move on to the next command
+				commandCounter++;
 			}
-			else	{
-				ioQueue.push((IO_Command*)nextCommand);
-			}
-			// move on to the next command
-			commandCounter++;
 		}
+
+		// std::cout<<commandCounter<<"\n";
 
 		// check if simulator can execute any command
 		if(!driverBusy)	{
@@ -81,9 +84,14 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		else	{
 			totalBusyTime += CLOCK_SPEED;
 			driverBusyTime -= CLOCK_SPEED;
-			if(driverBusyTime == 0)	{
+			if(driverBusyTime <= 0)	{
 				driverBusy = false;
 			}
+		}
+
+		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
+		if((commandCounter == commandPtr->size()) && !driverBusy && driverBusyTime <= 0)	{
+			break;
 		}
 		clock += CLOCK_SPEED;
 	}
