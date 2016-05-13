@@ -4,8 +4,9 @@ Command::Command()	{
 
 }
 
-Command::Command(clock_t issueTime)	{
+Command::Command(float issueTime, char type)	{
 	this->issueTime = issueTime;
+	this->type = type;
 }
 
 Command::~Command()	{
@@ -20,6 +21,14 @@ void Command::execute()	{
 	
 }
 
-clock_t Command::getIssueTime()	{
+float Command::getIssueTime()	{
 	return issueTime;
+}
+
+float Command::getProcessTime() {
+	return processTime;
+}
+
+char Command::getType() {
+	return type;
 }

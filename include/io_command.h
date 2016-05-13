@@ -13,17 +13,14 @@
 #include "macro.h"
 
 //MACRO
-#define PROCESS_TIME 2 //in ms
-
 
 class IO_Command: public Command 	{
 	private:
 	protected:
 	public:
-		IO_Command(clock_t issueTime);
+		IO_Command(float issueTime, char type);
 		~IO_Command();
 		int getCommandType();
-		void execute();
 };
 
 #endif

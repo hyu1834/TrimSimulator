@@ -13,17 +13,14 @@
 #include "macro.h"
 
 //MACRO
-#define PROCESS_TIME 2 //in ms
 
 
 class Trim_Command: public Command 	{
 	private:
 	protected:
 	public:
-		Trim_Command(clock_t issueTime);
+		Trim_Command(float issueTime);
 		~Trim_Command();
-		int getCommandType();
-		void execute();
 };
 
 #endif
