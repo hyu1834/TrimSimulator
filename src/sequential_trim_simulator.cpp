@@ -38,7 +38,7 @@ void Sequential_Trim_Simulator::startSimulation()	{
 			if(!trimQueue.empty())	{
 				nextTrimCommand = trimQueue.front();
 			}
-			if(!IO_Command.empty())	{
+			if(!ioQueue.empty())	{
 				nextIOCommand = ioQueue.front();
 			}
 
