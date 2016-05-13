@@ -14,9 +14,10 @@
 // #define COMMAND 0x00
 // #define TRIM_COMMAND 0x01
 // #define IO_COMMAND 0x02
-#define TRIM_COMMAND 'T';
-#define WRITE_COMMAND 'W';
-#define READ_COMMAND 'R';
+#define TRIM_COMMAND 'T'
+#define WRITE_COMMAND 'W'
+#define READ_COMMAND 'R'
+#define CLOCK_SPEED 0.000000001
 
 
 #endif

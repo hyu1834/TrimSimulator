@@ -1,6 +1,6 @@
 #include "simulator.h"
 
-Simulator::Simulator(std::vector<Command*> commands, int maxparallelops = 1)	{
+Simulator::Simulator(std::vector<Command*> commands, int maxparallelops)	{
 	commandPtr = &commands;
 	clock = 0;
 	this->maxParallelOps = maxparallelops;
