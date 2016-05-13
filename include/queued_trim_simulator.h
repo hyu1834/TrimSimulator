@@ -15,10 +15,10 @@
 
 class Queued_Trim_Simulator: public Simulator	{
 	private:
-		std::queue<Command*> storageQueue;
+		std::queue<Command*> commandQueue;
 	protected:
 	public:
-		Queued_Trim_Simulator(std::vector<Command*>& commands);
+		Queued_Trim_Simulator(std::vector<Command*>& commands, int parallelProcess = 1);
 		~Queued_Trim_Simulator();
 		void startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime);
 };
