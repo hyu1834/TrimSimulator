@@ -15,8 +15,9 @@ class Simulator	{
 	protected:
 		std::vector<Command*>* commandPtr;
 		double clock;
+		int maxParallelOps;
 	public:
-		Simulator(std::vector<Command*> commands);
+		Simulator(std::vector<Command*> commands, int maxparallelops = 1);
 		~Simulator();
 		virtual void startSimulation();
 };
