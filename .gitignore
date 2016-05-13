@@ -34,4 +34,5 @@ CMakeScripts
 Makefile
 cmake_install.cmake
 install_manifest.txt
-
+TS
+.DS_Store
