@@ -13,14 +13,6 @@ Command::~Command()	{
 
 }
 
-int Command::getCommandType()	{
-	return COMMAND;
-}
-
-void Command::execute()	{
-	
-}
-
 float Command::getIssueTime()	{
 	return issueTime;
 }

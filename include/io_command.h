@@ -20,7 +20,7 @@ class IO_Command: public Command 	{
 	public:
 		IO_Command(float issueTime, char type);
 		~IO_Command();
-		int getCommandType();
+		// int getCommandType();
 };
 
 #endif

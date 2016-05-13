@@ -12,9 +12,9 @@
 #include "macro.h"
 
 //MACRO
-#define TRIM_COMMAND 'T';
-#define WRITE_COMMAND 'W';
-#define READ_COMMAND 'R';
+// #define TRIM_COMMAND 'T';
+// #define WRITE_COMMAND 'W';
+// #define READ_COMMAND 'R';
 
 class Command 	{
 	private:
@@ -26,8 +26,6 @@ class Command 	{
 		Command();
 		Command(float issueTime, char type);
 		~Command();
-		virtual int getCommandType();
-		virtual void execute();
 		float getIssueTime();
 		float getProcessTime();
 		char getType();
