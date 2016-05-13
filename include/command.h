@@ -18,16 +18,16 @@
 
 class Command 	{
 	private:
-		float processTime;
+		double processTime;
 		char type;
 	protected:
-		float issueTime;
+		double issueTime;
 	public:
 		Command();
-		Command(float issueTime, char type);
+		Command(double issueTime, char type);
 		~Command();
-		float getIssueTime();
-		float getProcessTime();
+		double getIssueTime();
+		double getProcessTime();
 		char getType();
 };
 

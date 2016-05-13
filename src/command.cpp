@@ -4,7 +4,7 @@ Command::Command()	{
 
 }
 
-Command::Command(float issueTime, char type)	{
+Command::Command(double issueTime, char type)	{
 	this->issueTime = issueTime;
 	this->type = type;
 }
@@ -13,11 +13,11 @@ Command::~Command()	{
 
 }
 
-float Command::getIssueTime()	{
+double Command::getIssueTime()	{
 	return issueTime;
 }
 
-float Command::getProcessTime() {
+double Command::getProcessTime() {
 	return processTime;
 }
 

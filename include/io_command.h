@@ -18,7 +18,7 @@ class IO_Command: public Command 	{
 	private:
 	protected:
 	public:
-		IO_Command(float issueTime, char type);
+		IO_Command(double issueTime, char type);
 		~IO_Command();
 		// int getCommandType();
 };

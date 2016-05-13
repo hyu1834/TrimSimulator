@@ -19,7 +19,6 @@ class Simulator	{
 		Simulator(std::vector<Command*> commands);
 		~Simulator();
 		virtual void startSimulation();
-		void commandIssuer();
 };
 	
 #endif
