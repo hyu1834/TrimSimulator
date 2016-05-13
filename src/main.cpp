@@ -38,7 +38,7 @@ std::vector<Command*> procedurePraser(std::string procedureFilePath)	{
 	std::ifstream commandFilePtr(procedureFilePath.c_str(), std::ifstream::in);
 	// if open successfully
 	if(commandFilePtr)	{
-		float issueTime;
+		double issueTime;
 		char commandType;
 		// read everyline
 		while(commandFilePtr >> issueTime >> commandType)	{
