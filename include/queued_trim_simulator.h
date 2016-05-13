@@ -18,8 +18,7 @@ class Queued_Trim_Simulator: public Simulator	{
 		std::queue<Command*> storageQueue;
 	protected:
 	public:
-		Queued_Trim_Simulator();
-		Queued_Trim_Simulator(int maxOp = 1);
+		Queued_Trim_Simulator(std::vector<Command*> commands);
 		~Queued_Trim_Simulator();
 		void startSimulation();
 };

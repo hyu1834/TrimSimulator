@@ -1,7 +1,9 @@
 #ifndef SEQUENTIAL_TRIM_SIMULATOR_H
 	#define SEQUENTIAL_TRIM_SIMULATOR_H
 //Standard libraries
+// #include "iostream"
 #include <queue>
+// #include <vector>
 
 //Third parties libraries
 
@@ -20,10 +22,10 @@ class Sequential_Trim_Simulator: public Simulator	{
 		std::queue<IO_Command*> ioQueue;
 		// queue for trim commands
 		std::queue<Trim_Command*> trimQueue;
+
 	protected:
 	public:
-		Sequential_Trim_Simulator();
-		Sequential_Trim_Simulator(int maxOp);
+		Sequential_Trim_Simulator(std::vector<Command*> commands);
 		~Sequential_Trim_Simulator();
 		void startSimulation();
 };

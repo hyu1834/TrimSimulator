@@ -98,22 +98,23 @@ int main(int argc, char** argv)	{
 	//simulation process code
 	std::vector<Command*> commands;
 
-	if(procedureFilePath == "")	{
+	if(procedureFilePath != "")	{
+		//prase all the procedure line
 		commands = procedurePraser(procedureFilePath);
-	}
 
-	if(sequential_trim)	{
-		Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(2);
-		sts->startSimulation();
-	}
+		if(sequential_trim)	{
+			Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(commands);
+			sts->startSimulation();
+		}
 
-	if(queued_trim)	{
-		Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(2);
-		qts->startSimulation();
-	}
+		if(queued_trim)	{
+			Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(commands);
+			qts->startSimulation();
+		}
 
-	if(new_trim)	{
+		if(new_trim)	{
 
+		}
 	}
 
 	return 0;

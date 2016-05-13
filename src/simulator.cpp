@@ -1,11 +1,8 @@
 #include "simulator.h"
 
-Simulator::Simulator()	{
-
-}
-
-Simulator::Simulator(int maxOp)	{
-	maxOperation = maxOp;
+Simulator::Simulator(std::vector<Command*> commands)	{
+	commandPtr = &commands;
+	std::cout<<commandPtr->size()<<"\n";
 }
 
 Simulator::~Simulator()	{

@@ -1,22 +1,22 @@
 #ifndef SIMULATOR_H
 	#define SIMULATOR_H
 //Standard libraries
-
+#include <iostream>
+#include <vector>
 
 //Third parties libraries
 
 
 //Local libraries
-
+#include "command.h"
 
 class Simulator	{
 	private:
 	protected:
-		// maximum concurrent operation
-		int maxOperation;
+		std::vector<Command*>* commandPtr;
 	public:
-		Simulator();
-		Simulator(int maxOp);
+
+		Simulator(std::vector<Command*> commands);
 		~Simulator();
 		virtual void startSimulation();
 		void commandIssuer();

@@ -1,11 +1,7 @@
 #include "sequential_trim_simulator.h"
 
-Sequential_Trim_Simulator::Sequential_Trim_Simulator(){
-	maxOperation = 1;
-}
+Sequential_Trim_Simulator::Sequential_Trim_Simulator(std::vector<Command*> commands):Simulator(commands)	{
 
-Sequential_Trim_Simulator::Sequential_Trim_Simulator(int maxOp)	{
-	maxOperation = maxOp;
 }
 
 Sequential_Trim_Simulator::~Sequential_Trim_Simulator()	{
