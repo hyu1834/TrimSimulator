@@ -14,8 +14,8 @@ class Simulator	{
 	private:
 	protected:
 		std::vector<Command*>* commandPtr;
+		double clock;
 	public:
-
 		Simulator(std::vector<Command*> commands);
 		~Simulator();
 		virtual void startSimulation();
