@@ -30,11 +30,12 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 				commandCounter++;
 			}
 		}
-
+		advanceDriverBusyTime();
 		// check if simulator can execute any command
 		if(!availableDriverSlot.empty())	{
 			// while there are available slot, and there are commands in the queue
 			while(!availableDriverSlot.empty() && (!trimQueue.empty() || !ioQueue.empty()))	{
+
 				// get the index of driver slot
 				int driverSlotIndex = availableDriverSlot.front();
 			
@@ -80,6 +81,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 							servicesTime = trimProcessTime;
 							// pop it from the queue
 							trimQueue.pop();
+							currentServingType = TRIM_COMMAND;
+						}
+						else
+						{
+							break;
 						}
 					}
 					else if(currentServingType == IO_COMMAND)	{
@@ -88,6 +94,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 							servicesTime = (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
 							// pop the command off ioQueue
 							ioQueue.pop();
+							currentServingType = IO_COMMAND;
+						}
+						else
+						{
+							break;
 						}
 					}
 				}
@@ -98,6 +109,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 						servicesTime = trimProcessTime;
 						// pop it from the queue
 						trimQueue.pop();
+						currentServingType = TRIM_COMMAND;
+					}
+					else
+					{
+						break;
 					}
 				}
 				// if there is some trim command in io queue
@@ -106,6 +122,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 						servicesTime = (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
 						// pop the command off ioQueue
 						ioQueue.pop();
+						currentServingType = IO_COMMAND;
+					}
+					else
+					{
+						break;
 					}
 				}
 				// set the slot with services time
@@ -118,12 +139,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		}
 		else	{
 			totalBlockingTime += CLOCK_SPEED;
-			advanceDriverBusyTime();
-			// driverBusyTime -= CLOCK_SPEED;
-			if(allCompleted())	{
-				currentServingType = ANY_COMMAND;
-				printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
-			}
+			// driverBusyTime -= CLOCK_SPEED;	
+		}
+		if (allCompleted()) {
+			currentServingType = ANY_COMMAND;
+			//printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
 		}
 
 		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
@@ -134,7 +154,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		advanceClock();
 	}
 
-	std::cout << "System was blocking "<< totalBlockingTime /clock*100<<"% of time\n";
+	std::cout << "System was blocking "<< totalBlockingTime /clock * 100<<"% of time\n";
 	std::cout << "System was prcessing IO " << totalIOTime / clock * 100 << "% of time\n";
 	std::cout << "System was processing TRIM " << totalTrimTime / clock * 100 << "% of time\n";
 }
