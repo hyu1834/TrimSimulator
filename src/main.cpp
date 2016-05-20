@@ -40,11 +40,11 @@ void praseStatistic(std::string statisticFilePath, double& readProcessTime,
 		char commandType;
 		double time;
 		while(filePtr >> commandType >> time)	{
-			if(commandType == "T")
+			if(commandType == 'T')
 				trimProcessTime = time;
-			else if(commandType == "W")
+			else if(commandType == 'W')
 				writeProcessTime = time;
-			else if(commandType == "R")
+			else if(commandType == 'R')
 				readProcessTime = time;
 		}
 	}
@@ -106,18 +106,18 @@ int main(int argc, char** argv)	{
 				else
 					std::cerr<<"Dangling -s or --statistic flag on command line\n";
 			}
-			else if((strcasecmp(argv[i]+1,"p")==0)|| (strcasecmp(argv[i]+1,"-procedure")==0))	{
+			else if((strcasecmp(argv[i]+1,"a")==0)|| (strcasecmp(argv[i]+1,"-activity")==0))	{
 				++i;
 				if(i<argc)	{
 					procedureFilePath = argv[i];
 				}//end if
 				else
-					std::cerr<<"Dangling -p or --procedure flag on command line\n";
+					std::cerr<<"Dangling -a or --activity flag on command line\n";
 			}
 			else if((strcasecmp(argv[i]+1,"c")==0)|| (strcasecmp(argv[i]+1,"-concurrent")==0))	{
 				++i;
 				if(i<argc)	{
-					concurrent_command = argv[i];
+					concurrent_command = atoi(argv[i]);
 				}//end if
 				else
 					std::cerr<<"Dangling -c or --concurrent flag on command line\n";

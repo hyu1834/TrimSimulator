@@ -2,7 +2,8 @@ import os
 import sys
 import re
 
-# sudo blktrace -w 10 -d /dev/sda -o - | blkparse -i - > a.txt
+# sudo blktrace -a read -a write -a discard -w 20 -d /dev/sda -o - | blkparse -i -
+# sudo fstrim /
 
 if len(sys.argv) < 2:
 	print("Usage: python preprocessor.py <blktrace activity file>")
@@ -77,7 +78,7 @@ for line in open(sys.argv[1], 'r'):
 					command_durt[command_type] += time_diff
 					rwbs_count[command_type] += 1
 
-					activity[activity_log[match.groups()[0]][0]] = activity_log[match.groups()[0]][1]
+					activity[activity_log[match.groups()[0]][0]] = command_type
 
 				del activity_log[match.groups()[0]]
 		except KeyError:
@@ -87,11 +88,14 @@ for line in open(sys.argv[1], 'r'):
 
 statistic_fp = open("statistic.csv", 'w')
 for key, value in command_durt.items():
-	statistic_fp.write("%s  %s\n"%(key, value/rwbs_count[key]))
+	try:
+		statistic_fp.write("%s  %s\n"%(key, value/rwbs_count[key]))
+	except ZeroDivisionError:
+		statistic_fp.write("%s  %s\n"%(key, 0))
 
 activity_fp = open("activity.csv", "w")
 for key in sorted(activity):
-	activity_fp.write("%s  %s\n"%(key, activity[key]))
+	activity_fp.write("%.10lf  %s\n"%(key, activity[key]))
 
 
 
