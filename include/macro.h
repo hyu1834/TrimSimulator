@@ -17,7 +17,7 @@
 #define ANY_COMMAND 'N'
 #define IO_COMMAND 'I'
 #define CLOCK_SPEED 0.000000001
-
+#define QUEUE_LENGTH_RES 10
 
 
 #endif

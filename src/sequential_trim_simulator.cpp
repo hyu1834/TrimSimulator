@@ -13,6 +13,9 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 	
 	// bool driverBusy = false;
 	//test
+	unsigned long IOqueuelength = 0;
+	unsigned long Trimqueuelength = 0;
+	unsigned long queuelengthCount = 0;
 
 	// start simulation
 	while(1)	{
@@ -31,6 +34,16 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 				commandCounter++;
 			}
 		}
+
+		//compute average queue length
+		//record every QUEUE_LENGTH_RES
+		if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
+		{
+			IOqueuelength += ioQueue.size();
+			Trimqueuelength += trimQueue.size();
+			queuelengthCount++;
+		}
+
 		advanceDriverBusyTime();
 		// check if simulator can execute any command
 		if(!availableDriverSlot.empty())	{
@@ -158,4 +171,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 	std::cout << "System was blocking "<< totalBlockingTime /clock * 100<<"% of time\n";
 	std::cout << "System was prcessing IO " << totalIOTime / clock * 100 << "% of time\n";
 	std::cout << "System was processing TRIM " << totalTrimTime / clock * 100 << "% of time\n";
+
+	std::cout << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
 }
