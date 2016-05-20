@@ -12,6 +12,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 	int commandCounter = 0;
 	
 	// bool driverBusy = false;
+	//test
 
 	// start simulation
 	while(1)	{
