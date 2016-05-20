@@ -20,6 +20,12 @@ class Simulator	{
 		int maxParallelOps;
 		double* driverBusyTime;
 
+		// book keeping
+		double totalBlockingTime;
+		double totalIOTime;
+		double totalTrimTime;
+		char currentServingType;
+
 		std::queue<int> availableDriverSlot;
 	public:
 		Simulator(std::vector<Command*>& commands, int maxparallelops = 1);

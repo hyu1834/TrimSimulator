@@ -10,9 +10,8 @@ Sequential_Trim_Simulator::~Sequential_Trim_Simulator()	{
 
 void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime)	{
 	int commandCounter = 0;
-	char currentServingType = ANY_COMMAND;
+	
 	// bool driverBusy = false;
-	double totalBusyTime = 0;
 
 	// start simulation
 	while(1)	{
@@ -118,12 +117,12 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 			}
 		}
 		else	{
-			totalBusyTime += CLOCK_SPEED;
+			totalBlockingTime += CLOCK_SPEED;
 			advanceDriverBusyTime();
 			// driverBusyTime -= CLOCK_SPEED;
 			if(allCompleted())	{
 				currentServingType = ANY_COMMAND;
-				printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBusyTime);
+				printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
 			}
 		}
 
@@ -135,6 +134,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		advanceClock();
 	}
 
-	std::cout<<"System was busy with I/O "<< totalBusyTime/clock*100<<"% of time\n";
-
+	std::cout << "System was blocking "<< totalBlockingTime /clock*100<<"% of time\n";
+	std::cout << "System was prcessing IO " << totalIOTime / clock * 100 << "% of time\n";
+	std::cout << "System was processing TRIM " << totalTrimTime / clock * 100 << "% of time\n";
 }

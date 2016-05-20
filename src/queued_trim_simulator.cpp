@@ -14,7 +14,6 @@ void Queued_Trim_Simulator::startSimulation(double readProcessTime, double write
 	// bool driverBusy = false;
 	// double* driverBusyTime = new double[parallelProcess]; 
 	// double driverBusyTime = 0, 
-	double totalBusyTime = 0;
 	
 	// start simulation
 	while(1)	{
@@ -53,7 +52,7 @@ void Queued_Trim_Simulator::startSimulation(double readProcessTime, double write
 		}
 
 		if(!allCompleted())	{
-			totalBusyTime += CLOCK_SPEED;
+			totalBlockingTime += CLOCK_SPEED;
 		}
 		else	{
 			// printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBusyTime);
@@ -68,5 +67,7 @@ void Queued_Trim_Simulator::startSimulation(double readProcessTime, double write
 		advanceClock();
 	}	
 
-	std::cout<<"System was busy with I/O "<< totalBusyTime/clock*100<<"% of time\n";
+	std::cout << "System was blocking " << totalBlockingTime / clock * 100 << "% of time\n";
+	std::cout << "System was prcessing IO " << totalIOTime / clock * 100 << "% of time\n";
+	std::cout << "System was processing TRIM " << totalTrimTime / clock * 100 << "% of time\n";
 }

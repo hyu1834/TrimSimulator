@@ -11,6 +11,11 @@ Simulator::Simulator(std::vector<Command*>& commands, int maxparallelops)	{
 		driverBusyTime[i] = 0.0;
 		availableDriverSlot.push(i);
 	}
+
+	totalBlockingTime = 0;
+	totalIOTime = 0;
+	totalTrimTime = 0;
+	currentServingType = ANY_COMMAND;
 }
 
 Simulator::~Simulator()	{
@@ -34,6 +39,15 @@ void Simulator::advanceDriverBusyTime()	{
 			availableDriverSlot.push(i);
 		}
 	}
+	switch (currentServingType)
+	{
+	case(TRIM_COMMAND):
+		totalTrimTime += CLOCK_SPEED;
+		break;
+	case(IO_COMMAND):
+		totalIOTime += CLOCK_SPEED;
+		break;
+	}
 }
 
 void Simulator::advanceOldDriverBusyTime(int newThread)	{
@@ -46,6 +60,7 @@ void Simulator::advanceOldDriverBusyTime(int newThread)	{
 			availableDriverSlot.push(i);
 		}
 	}
+
 }
 
 void Simulator::setDriverBusyTimer(int operation, double time)	{
