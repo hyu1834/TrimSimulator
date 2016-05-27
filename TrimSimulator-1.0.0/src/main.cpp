@@ -133,11 +133,11 @@ int main(int argc, char** argv)	{
 				new_trim=true;
 			}//end else if
 			else	{
-				std:cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
+				std::cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
 			}
 		}
 		else	{
-			std:cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
+			std::cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
 		}
 	}//end for
 

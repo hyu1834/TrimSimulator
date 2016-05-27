@@ -37,42 +37,47 @@ class SSD_Event_Generator(object):
 	def capture_simulate_event(self):
 		# 8,0    1       70     0.000039646   213  D  WS 415398104 + 176 [jbd2/sda5-8]
 		# 8,0    1       71     0.000288625     0  C  WS 415398104 + 176 [0]
-		CLOCK_SPEED = 0.000000001
-		clock = 0
+		CLOCK_SPEED = 0.000001000
+		clock = 0.0
 		events = {}
-		seq_number = 0
 		event_id = random.randint(100000000, 999999999)
+		# start generate
 		while(clock < self.capture_duration):
-			event_type = random.randint(0, 1) 
+			# print("%.10f"%clock)
+			event_type = random.randint(0, 10) 
 			# no event
-			if event_type == 0:
-				pass
-			# issue D
-			elif event_type == 1
+			if event_type == 1:
 				rwbs = random.randint(0, 2)
-				event_id = 
+				command_issue_time = clock
+				
+				offset = random.randint(1, 1024)
 				# read
 				if rwbs == 0:
-					events[clock] = "8,0    1       %s     %s   213  D  R %s"%(seq_number, clock, event_id)
-					events[clock] = "8,0    1       %s     %s   213  C  R %s"%(seq_number + 1, clock + self.read_time, event_id)
-					seq_number += 2
-					event_id += 1
+					command_compt_time = clock + self.read_time
+					events[command_issue_time] = ("D", "R", event_id, offset)#"8,0    1       %s     %.10f   213  D  R %s"%(seq_number, command_issue_time, event_id)
+					events[command_compt_time] = ("C", "R", event_id, offset)#"8,0    1       %s     %.10f   213  C  R %s"%(seq_number + 1, command_compt_time, event_id)
 				# write
 				elif rwbs == 1:
-					pass
+					command_compt_time = clock + self.write_time
+					events[command_issue_time] = ("D", "W", event_id, offset)#"8,0    1       %s     %.10f   213  D  W %s"%(seq_number, command_issue_time, event_id)
+					events[command_compt_time] = ("C", "W", event_id, offset)#"8,0    1       %s     %.10f   213  C  W %s"%(seq_number + 1, command_compt_time, event_id)
 				# trim
 				else:
-					pass
+					command_compt_time = clock + self.trim_time
+					events[command_issue_time] = ("D", "D", event_id, offset)#"8,0    1       %s     %.10f   213  D  D %s"%(seq_number, command_issue_time, event_id)
+					events[command_compt_time] = ("C", "D", event_id, offset)#"8,0    1       %s     %.10f   213  C  D %s"%(seq_number + 1, command_compt_time, event_id)
+
+				event_id += 1
 
 			clock += CLOCK_SPEED
 
-		return [events[key] for key in sorted(events.keys())]
+		return ["8,0    1       %s     %.10f   213  %s  %s %s + %s"%(seq_num, key, events[key][0], events[key][1], events[key][2], events[key][3]) for seq_num, key in enumerate(sorted(events.keys()))]
 
 	def capture_event(self):
 		if self.real_event_capture and capture_duration > 0:
 			return self.capture_real_event()
 		elif self.simulate_event_capture and capture_duration > 0 and read_time > 0 and write_time > 0 and trim_time > 0:
-			return self.capture_simulate_event()
+			return trim_simulator_utils.trim_simulator_event_formatter(self.capture_simulate_event())
 		else:
 			help()
 
@@ -94,7 +99,6 @@ if __name__ == '__main__':
 	index = 1
 	while(index < argc):
 		arg = sys.argv[index]
-		print(arg)
 		if arg == "-r" or arg == "--real":
 			real_event_capture = True
 			try:
@@ -105,10 +109,10 @@ if __name__ == '__main__':
 		elif arg == "-s" or arg == "--simulate":	
 			simulate_event_capture = True
 			try:
-				capture_duration = int(sys.argv[index + 1])
-				read_time = int(sys.argv[index + 2])
-				write_time = int(sys.argv[index + 3])
-				trim_time = int(sys.argv[index + 4])
+				capture_duration = float(sys.argv[index + 1])
+				read_time = float(sys.argv[index + 2])
+				write_time = float(sys.argv[index + 3])
+				trim_time = float(sys.argv[index + 4])
 				index += 4
 			except IndexError:
 				io_utils.stderr("Dangling -s or --simulate flag on command line", terminate = True)
@@ -119,5 +123,7 @@ if __name__ == '__main__':
 
 	# create generator instance
 	event_generator = SSD_Event_Generator(real_event_capture, simulate_event_capture, capture_duration, read_time, write_time, trim_time)
-	event_generator.capture_event()
+	command_durt, activity = event_generator.capture_event()
+	trim_simulator_utils.trim_simulator_export_event(command_durt, activity)
+
 

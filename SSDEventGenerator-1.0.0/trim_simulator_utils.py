@@ -1,4 +1,15 @@
+import re
+
+
+
 def trim_simulator_event_formatter(events):
+	activity_log = {}
+	command_durt = {"R": 0, "W": 0, "T": 0}
+	current_clock = {}
+	rwbs_count = {"R": 0, "W": 0, "T": 0}
+	activity = {}
+
+
 	for line in events:
 		line = line.split()
 		if len(line) < 8:
@@ -30,14 +41,14 @@ def trim_simulator_event_formatter(events):
 				continue
 			current_clock[cpu_id] = seconds
 
-		
+		# print(len(activity_log))
 		if action_type == "D":
-			match = re.match("(\d+\+\d).*$", description)
+			match = re.match("(\d+\+\d+).*$", description)
 			if match and match.groups()[0]:
 				activity_log[match.groups()[0]] = (seconds, rwbs)
 		elif action_type == "C":
 			try:
-				match = re.match("(\d+\+\d).*$", description)
+				match = re.match("(\d+\+\d+).*$", description)
 				if match and match.groups()[0] and activity_log[match.groups()[0]]:
 					time_diff = seconds - activity_log[match.groups()[0]][0]
 					# print(time_diff)
@@ -58,15 +69,18 @@ def trim_simulator_event_formatter(events):
 			except KeyError:
 				continue
 
-	return command_durt, activity
-
-def trim_simulator_export_event(self, command_durt, activity):
-	statistic_fp = open("statistic.csv", 'w')
 	for key, value in command_durt.items():
 		try:
-			statistic_fp.write("%s  %s\n"%(key, value/rwbs_count[key]))
+			command_durt[key] = value/rwbs_count[key]
 		except ZeroDivisionError:
-			statistic_fp.write("%s  %s\n"%(key, 0))
+			command_durt[key] = 0
+
+	return command_durt, activity
+
+def trim_simulator_export_event(command_durt, activity):
+	statistic_fp = open("statistic.csv", 'w')
+	for key, value in command_durt.items():
+		statistic_fp.write("%s  %.10f\n"%(key, value))
 
 	activity_fp = open("activity.csv", "w")
 	for key in sorted(activity):
