@@ -17,6 +17,8 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 	unsigned long Trimqueuelength = 0;
 	unsigned long queuelengthCount = 0;
 
+	long double totalBusyTime = 0;
+
 	// start simulation
 	while(1)	{
 		// if there are command that has not been issue yet
@@ -159,6 +161,9 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 			currentServingType = ANY_COMMAND;
 			//printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
 		}
+		else	{
+			totalBusyTime += CLOCK_SPEED;
+		}
 
 		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
 		if((commandCounter == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted())	{
@@ -168,10 +173,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		advanceClock();
 	}
 
-	std::cout << "System was blocking "<< totalBlockingTime /clock * 100<<"% of time\n";
-	std::cout << "System was prcessing IO " << totalIOTime / clock * 100 << "% of time\n";
-	std::cout << "System was processing TRIM " << totalTrimTime / clock * 100 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was blocking "<< (double)totalBlockingTime / (double)clock * 100.0<<"% of time\n";
+	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n";
+	std::cout << std::setprecision(10) << "System was prcessing IO " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was processing TRIM " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n";
 
-	std::cout << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
-	std::cout << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
 }

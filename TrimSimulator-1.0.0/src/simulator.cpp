@@ -16,6 +16,7 @@ Simulator::Simulator(std::vector<Command*>& commands, int maxparallelops)	{
 	totalIOTime = 0;
 	totalTrimTime = 0;
 	currentServingType = ANY_COMMAND;
+
 }
 
 Simulator::~Simulator()	{
