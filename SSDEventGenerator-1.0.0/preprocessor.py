@@ -52,16 +52,10 @@ for line in open(sys.argv[1], 'r'):
 
 	
 	if action_type == "D":
-		# 482659696', '+', '8'
 		match = re.match("(\d+\+\d).*$", description)
 		if match and match.groups()[0]:
 			activity_log[match.groups()[0]] = (seconds, rwbs)
 	elif action_type == "C":
-		# print(description, line)
-		# print(activity)
-		# print(rwbs_count)
-		# print(activity_log)
-		# print(average_completion_time)
 		try:
 			match = re.match("(\d+\+\d).*$", description)
 			if match and match.groups()[0] and activity_log[match.groups()[0]]:

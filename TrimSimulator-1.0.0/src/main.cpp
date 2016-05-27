@@ -132,6 +132,12 @@ int main(int argc, char** argv)	{
 			else if((strcasecmp(argv[i]+1,"n")==0)|| (strcasecmp(argv[i]+1,"-new_trim")==0))	{
 				new_trim=true;
 			}//end else if
+			else	{
+				std:cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
+			}
+		}
+		else	{
+			std:cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
 		}
 	}//end for
 
@@ -152,12 +158,12 @@ int main(int argc, char** argv)	{
 		
 
 	if(sequential_trim)	{
-		Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(commands);
+		Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(commands, concurrent_command);
 		sts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 	}
 
 	if(queued_trim)	{
-		Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(commands);
+		Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(commands, concurrent_command);
 		qts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 	}
 
