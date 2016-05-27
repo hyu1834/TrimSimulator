@@ -1,7 +1,7 @@
 # TrimSimulator
 
 ####Version: 
-0.0.1
+1.0.0
 
 ##Author: 
 Hiu Hong Yu - hiuyu@ucdavis.edu - Department of Computer Science, University of California, Davis.
