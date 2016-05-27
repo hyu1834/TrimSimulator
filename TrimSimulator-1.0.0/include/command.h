@@ -20,11 +20,13 @@ class Command 	{
 	private:
 		double processTime;
 		char type;
+		long startingBlock;
+		long nextNBlock;
 	protected:
 		double issueTime;
 	public:
 		Command();
-		Command(double issueTime, char type);
+		Command(double issueTime, char type, long startingBlock, long nextNBlock);
 		~Command();
 		double getIssueTime();
 		// double getProcessTime();

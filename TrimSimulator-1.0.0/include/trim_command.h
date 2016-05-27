@@ -19,7 +19,7 @@ class Trim_Command: public Command 	{
 	private:
 	protected:
 	public:
-		Trim_Command(double issueTime);
+		Trim_Command(double issueTime, long startingBlock, long nextNBlock);
 		~Trim_Command();
 };
 

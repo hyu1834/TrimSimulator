@@ -57,14 +57,16 @@ void procedurePraser(std::string procedureFilePath, std::vector<Command*>& proce
 	if(filePtr)	{
 		double issueTime;
 		char commandType;
+		long startingBlock;
+		long nextNBlock;
 		// read everyline
-		while(filePtr >> issueTime >> commandType)	{
+		while(filePtr >> issueTime >> commandType >> startingBlock >> nextNBlock)	{
 			// create command based on command type
 			if(commandType == 'T')	{
-				procedure.push_back(new Trim_Command(issueTime));
+				procedure.push_back(new Trim_Command(issueTime, startingBlock, nextNBlock));
 			}
 			else	{
-				procedure.push_back(new IO_Command(issueTime, commandType));
+				procedure.push_back(new IO_Command(issueTime, commandType, startingBlock, nextNBlock));
 			}
 		}
 	}

@@ -4,9 +4,11 @@ Command::Command()	{
 
 }
 
-Command::Command(double issueTime, char type)	{
+Command::Command(double issueTime, char type, long startingBlock, long nextNBlock)	{
 	this->issueTime = issueTime;
 	this->type = type;
+	this->startingBlock = startingBlock;
+	this->nextNBlock = nextNBlock;
 }
 
 Command::~Command()	{
