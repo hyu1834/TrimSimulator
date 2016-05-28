@@ -11,11 +11,7 @@ Queued_Trim_Simulator::~Queued_Trim_Simulator()	{
 
 void Queued_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime) {
 	int commandCounter = 0;
-	// bool driverBusy = false;
-	// double* driverBusyTime = new double[parallelProcess]; 
-	// double driverBusyTime = 0, 
-	unsigned long queuelength = 0;
-	unsigned long queuelengthCount = 0;
+
 
 	// start simulation
 	while (1) {
@@ -28,14 +24,6 @@ void Queued_Trim_Simulator::startSimulation(double readProcessTime, double write
 				// move on to the next command
 				commandCounter++;
 			}
-		}
-
-		//compute average queue length
-		//record every QUEUE_LENGTH_RES
-		if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
-		{
-			queuelength += commandQueue.size();
-			queuelengthCount++;
 		}
 
 		// printf("clock: %.9lf\n", clock);
@@ -62,22 +50,42 @@ void Queued_Trim_Simulator::startSimulation(double readProcessTime, double write
 			availableDriverSlot.pop();
 		}
 
-		if (!allCompleted()) {
-			totalBlockingTime += CLOCK_SPEED;
-		}
-		else {
-			// printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBusyTime);
-		}
-
 		advanceDriverBusyTime();
 		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
 		if ((commandCounter == commandPtr->size()) && commandQueue.empty() && allCompleted()) {
 			break;
 		}
 
+		StatCollect();
 		advanceClock();
 	}
 
 	std::cout << "System was blocking " << totalBlockingTime / clock * 100 << "% of time\n";
 	std::cout << "System average queue length " << (long double)queuelength / (long double)queuelengthCount << "\n";
+}
+
+void Queued_Trim_Simulator::StatCollect()
+{
+	if (allCompleted())
+	{
+		totalIdleTime += CLOCK_SPEED;
+	}
+	else
+	{
+		totalBusyTime += CLOCK_SPEED;
+	}
+
+	//compute blocking time
+	if (availableDriverSlot.empty() && !commandQueue.empty())
+	{
+		totalBlockingTime += CLOCK_SPEED;
+	}
+
+	//compute average queue length
+	//record every QUEUE_LENGTH_RES
+	if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
+	{
+		queuelength += commandQueue.size();
+		queuelengthCount++;
+	}
 }

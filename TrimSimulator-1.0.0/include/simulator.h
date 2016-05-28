@@ -21,10 +21,11 @@ class Simulator	{
 		int maxParallelOps;
 		double* driverBusyTime;
 
-		// book keeping
-		double totalBlockingTime;
-		double totalIOTime;
-		double totalTrimTime;
+		// Stat collection, could have more in derived class
+		double totalBlockingTime;			//Blocking : No available driver slot to process command and there's command in queue
+		double totalBusyTime;				//Busy : At least one command is being processed
+		double totalIdleTime;				//IdleTime : no command is being processed
+
 		char currentServingType;
 
 		std::queue<int> availableDriverSlot;
@@ -38,6 +39,8 @@ class Simulator	{
 		void setDriverBusyTimer(int operation, double time);
 		// bool isAvailableSlot();
 		bool allCompleted();
+		//Stat collection function, to be implemented in derived classes
+		virtual void StatCollect();
 };
 	
 #endif

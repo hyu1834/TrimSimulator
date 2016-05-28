@@ -7,7 +7,6 @@
 
 //Third parties libraries
 
-
 //Local Includes
 #include "macro.h"
 #include "io_utils.h"
@@ -16,6 +15,7 @@
 #include "command.h"
 #include "trim_command.h"
 #include "io_command.h"
+#include "ecs251_trim_simulator.h"
 
 
 std::string version="0.0.1";
@@ -170,7 +170,8 @@ int main(int argc, char** argv)	{
 	}
 
 	if(new_trim)	{
-
+		ECS_251_Trim_Simulator* ets = new ECS_251_Trim_Simulator(commands, concurrent_command);
+		ets->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 	}
 
 

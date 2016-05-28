@@ -2,7 +2,12 @@
 
 ECS_251_Trim_Simulator::ECS_251_Trim_Simulator(std::vector<Command*>& commands, int parallelProcess) : Simulator(commands, maxParallelOps)
 {
-
+	totalIOTime = 0;
+	totalTrimTime = 0;
+	totalMixTime = 0;
+	IOqueuelength = 0;
+	Trimqueuelength = 0;
+	queuelengthCount = 0;
 }
 ECS_251_Trim_Simulator::~ECS_251_Trim_Simulator()
 {
@@ -14,10 +19,7 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 	int commandCounter = 0;
 
 	// bool driverBusy = false;
-	//test
-	unsigned long IOqueuelength = 0;
-	unsigned long Trimqueuelength = 0;
-	unsigned long queuelengthCount = 0;
+
 
 	// start simulation
 	while (1) {
@@ -91,7 +93,7 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 							currentServingType = IO_COMMAND;
 						}
 					}
-					else if (currentServingType == TRIM_COMMAND) {
+					else if (currentServingType == TRIM_COMMAND || currentServingType == (TRIM_COMMAND | IO_COMMAND)) {
 						if (timeDiff > 0) {
 							// execute the command
 							servicesTime = trimProcessTime;
@@ -117,14 +119,14 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 							//----DIFFERENT!!----
 							servicesTime = trimProcessTime;
 							trimQueue.pop();
-							currentServingType = TRIM_COMMAND;
+							currentServingType = (TRIM_COMMAND | IO_COMMAND);
 							//----END CUSTOM ALG---
 						}
 					}
 				}
 				// if there is some trim command in trim queue
 				else if (nextTrimCommand != NULL) {
-					if (currentServingType == TRIM_COMMAND || currentServingType == ANY_COMMAND) {
+					if (currentServingType == TRIM_COMMAND || currentServingType == ANY_COMMAND || currentServingType == (TRIM_COMMAND | IO_COMMAND)) {
 						// execute the command
 						servicesTime = trimProcessTime;
 						// pop it from the queue
@@ -158,8 +160,6 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 			}
 		}
 		else {
-			totalBlockingTime += CLOCK_SPEED;
-			// driverBusyTime -= CLOCK_SPEED;	
 		}
 		if (allCompleted()) {
 			currentServingType = ANY_COMMAND;
@@ -171,6 +171,7 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 			break;
 		}
 
+		StatCollect();
 		advanceClock();
 	}
 
@@ -180,4 +181,42 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 
 	std::cout << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
 	std::cout << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
+}
+
+void ECS_251_Trim_Simulator::StatCollect()
+{
+	//Compute busy/idle time
+	if (allCompleted())
+	{
+		totalIdleTime += CLOCK_SPEED;
+	}
+	else if (currentServingType == TRIM_COMMAND)
+	{
+		totalTrimTime += CLOCK_SPEED;
+		totalBusyTime += CLOCK_SPEED;
+	}
+	else if (currentServingType == (TRIM_COMMAND | IO_COMMAND))
+	{
+		totalMixTime += CLOCK_SPEED;
+		totalBusyTime += CLOCK_SPEED;
+	}
+	else
+	{
+		totalIOTime += CLOCK_SPEED;
+		totalBusyTime += CLOCK_SPEED;
+	}
+
+	if (availableDriverSlot.empty() && (!trimQueue.empty() || !ioQueue.empty()))
+	{
+		totalBlockingTime += CLOCK_SPEED;
+	}
+
+	//compute average queue length
+	//record every QUEUE_LENGTH_RES
+	if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
+	{
+		IOqueuelength += ioQueue.size();
+		Trimqueuelength += trimQueue.size();
+		queuelengthCount++;
+	}
 }

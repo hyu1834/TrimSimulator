@@ -13,10 +13,9 @@ Simulator::Simulator(std::vector<Command*>& commands, int maxparallelops)	{
 	}
 
 	totalBlockingTime = 0;
-	totalIOTime = 0;
-	totalTrimTime = 0;
+	totalBusyTime = 0;
+	totalIdleTime = 0;
 	currentServingType = ANY_COMMAND;
-
 }
 
 Simulator::~Simulator()	{
@@ -39,15 +38,6 @@ void Simulator::advanceDriverBusyTime()	{
 		if(driverBusyTime[i] <= 0.0 && availableDriverSlot.size() != maxParallelOps)	{
 			availableDriverSlot.push(i);
 		}
-	}
-	switch (currentServingType)
-	{
-	case(TRIM_COMMAND):
-		totalTrimTime += CLOCK_SPEED;
-		break;
-	case(IO_COMMAND):
-		totalIOTime += CLOCK_SPEED;
-		break;
 	}
 }
 
@@ -87,4 +77,9 @@ bool Simulator::allCompleted()	{
 	// 	}
 	// }
 	// return true;
+}
+
+void Simulator::StatCollect()
+{
+
 }

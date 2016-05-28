@@ -22,12 +22,22 @@ class Sequential_Trim_Simulator: public Simulator	{
 		std::queue<IO_Command*> ioQueue;
 		// queue for trim commands
 		std::queue<Trim_Command*> trimQueue;
+		
+		//Stat collection
+		double totalIOTime;			//IOTime : time used to process IO command
+		double totalTrimTime;		//TrimTime : time used to process trim command
+
+		//average queue length computation
+		unsigned long IOqueuelength;
+		unsigned long Trimqueuelength;
+		unsigned long queuelengthCount;			//number of queue length recorded, average queue length is QueueLength(from above)/queuelengthCount
 
 	protected:
 	public:
 		Sequential_Trim_Simulator(std::vector<Command*>& commands, int maxParallelOps = 1);
 		~Sequential_Trim_Simulator();
 		void startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime);
+		void StatCollect();
 };
 	
 #endif

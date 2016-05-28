@@ -1,7 +1,11 @@
 #include "sequential_trim_simulator.h"
 
 Sequential_Trim_Simulator::Sequential_Trim_Simulator(std::vector<Command*>& commands, int maxparallelops):Simulator(commands, maxparallelops)	{
-
+	totalIOTime = 0;
+	totalTrimTime = 0;
+	IOqueuelength = 0;
+	Trimqueuelength = 0;
+	queuelengthCount = 0;
 }
 
 Sequential_Trim_Simulator::~Sequential_Trim_Simulator()	{
@@ -10,14 +14,6 @@ Sequential_Trim_Simulator::~Sequential_Trim_Simulator()	{
 
 void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime)	{
 	int commandCounter = 0;
-	
-	// bool driverBusy = false;
-	//test
-	unsigned long IOqueuelength = 0;
-	unsigned long Trimqueuelength = 0;
-	unsigned long queuelengthCount = 0;
-
-	long double totalBusyTime = 0;
 
 	// start simulation
 	while(1)	{
@@ -35,15 +31,6 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 				// move on to the next command
 				commandCounter++;
 			}
-		}
-
-		//compute average queue length
-		//record every QUEUE_LENGTH_RES
-		if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
-		{
-			IOqueuelength += ioQueue.size();
-			Trimqueuelength += trimQueue.size();
-			queuelengthCount++;
 		}
 
 		advanceDriverBusyTime();
@@ -154,30 +141,62 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 			}
 		}
 		else	{
-			totalBlockingTime += CLOCK_SPEED;
-			// driverBusyTime -= CLOCK_SPEED;	
 		}
 		if (allCompleted()) {
 			currentServingType = ANY_COMMAND;
 			//printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
-		}
-		else	{
-			totalBusyTime += CLOCK_SPEED;
 		}
 
 		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
 		if((commandCounter == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted())	{
 			break;
 		}
-
+		
+		//Stat collection before advancing clock
+		StatCollect();
 		advanceClock();
 	}
 
 	std::cout << std::setprecision(10) << "System was blocking "<< (double)totalBlockingTime / (double)clock * 100.0<<"% of time\n";
-	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n";
+	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n\n";
+	std::cout << std::setprecision(10) << "System was idle " << (double)totalIdleTime / (double)clock * 100.0 << "% of time\n\n";
+
 	std::cout << std::setprecision(10) << "System was prcessing IO " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
-	std::cout << std::setprecision(10) << "System was processing TRIM " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was processing TRIM " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n\n";
 
 	std::cout << std::setprecision(10) << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
 	std::cout << std::setprecision(10) << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
+}
+
+void Sequential_Trim_Simulator::StatCollect()
+{
+	//Compute busy/idle time
+	if (allCompleted())
+	{
+		totalIdleTime += CLOCK_SPEED;
+	}
+	else if(currentServingType == TRIM_COMMAND)
+	{
+		totalTrimTime += CLOCK_SPEED;
+		totalBusyTime += CLOCK_SPEED;
+	}
+	else
+	{
+		totalIOTime += CLOCK_SPEED;
+		totalBusyTime += CLOCK_SPEED;
+	}
+
+	if (availableDriverSlot.empty() && (!trimQueue.empty() || !ioQueue.empty()))
+	{
+		totalBlockingTime += CLOCK_SPEED;
+	}
+
+	//compute average queue length
+	//record every QUEUE_LENGTH_RES
+	if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
+	{
+		IOqueuelength += ioQueue.size();
+		Trimqueuelength += trimQueue.size();
+		queuelengthCount++;
+	}
 }
