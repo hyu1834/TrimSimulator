@@ -148,6 +148,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		}
 
 		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
+		std::cout << "Clock " << clock << "\n";
 		if((commandCounter == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted())	{
 			break;
 		}
@@ -158,7 +159,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 	}
 
 	std::cout << std::setprecision(10) << "System was blocking "<< (double)totalBlockingTime / (double)clock * 100.0<<"% of time\n";
-	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n\n";
+	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n";
 	std::cout << std::setprecision(10) << "System was idle " << (double)totalIdleTime / (double)clock * 100.0 << "% of time\n\n";
 
 	std::cout << std::setprecision(10) << "System was prcessing IO " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
