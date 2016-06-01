@@ -4,14 +4,13 @@ ECS_251_Trim_Simulator::ECS_251_Trim_Simulator(std::vector<Command*>& commands, 
 {
 	totalIOTime = 0;
 	totalTrimTime = 0;
-	totalMixTime = 0;
 	IOqueuelength = 0;
 	Trimqueuelength = 0;
 	queuelengthCount = 0;
 }
 ECS_251_Trim_Simulator::~ECS_251_Trim_Simulator()
 {
-
+	commandPtr = NULL;
 }
 
 void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime)
@@ -93,7 +92,7 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 							currentServingType = IO_COMMAND;
 						}
 					}
-					else if (currentServingType == TRIM_COMMAND || currentServingType == (TRIM_COMMAND | IO_COMMAND)) {
+					else if (currentServingType == TRIM_COMMAND) {
 						if (timeDiff > 0) {
 							// execute the command
 							servicesTime = trimProcessTime;
@@ -116,17 +115,18 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 						}
 						else
 						{
+							break;
 							//----DIFFERENT!!----
-							servicesTime = trimProcessTime;
-							trimQueue.pop();
-							currentServingType = (TRIM_COMMAND | IO_COMMAND);
+							//servicesTime = trimProcessTime;
+							//trimQueue.pop();
+							//currentServingType = TRIM_COMMAND;
 							//----END CUSTOM ALG---
 						}
 					}
 				}
 				// if there is some trim command in trim queue
 				else if (nextTrimCommand != NULL) {
-					if (currentServingType == TRIM_COMMAND || currentServingType == ANY_COMMAND || currentServingType == (TRIM_COMMAND | IO_COMMAND)) {
+					if (currentServingType == TRIM_COMMAND || currentServingType == ANY_COMMAND) {
 						// execute the command
 						servicesTime = trimProcessTime;
 						// pop it from the queue
@@ -167,6 +167,7 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 		}
 
 		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
+		std::cout << "Clock " << clock << "\n";
 		if ((commandCounter == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted()) {
 			break;
 		}
@@ -175,12 +176,15 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 		advanceClock();
 	}
 
-	std::cout << "System was blocking " << totalBlockingTime / clock * 100 << "% of time\n";
-	std::cout << "System was prcessing IO " << totalIOTime / clock * 100 << "% of time\n";
-	std::cout << "System was processing TRIM " << totalTrimTime / clock * 100 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was blocking "<< (double)totalBlockingTime / (double)clock * 100.0<<"% of time\n";
+	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n";
+	std::cout << std::setprecision(10) << "System was idle " << (double)totalIdleTime / (double)clock * 100.0 << "% of time\n\n";
 
-	std::cout << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
-	std::cout << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << std::setprecision(10) << "System was prcessing IO " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was processing TRIM " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n\n";
+
+	std::cout << std::setprecision(10) << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
 }
 
 void ECS_251_Trim_Simulator::StatCollect()
@@ -195,11 +199,11 @@ void ECS_251_Trim_Simulator::StatCollect()
 		totalTrimTime += CLOCK_SPEED;
 		totalBusyTime += CLOCK_SPEED;
 	}
-	else if (currentServingType == (TRIM_COMMAND | IO_COMMAND))
-	{
-		totalMixTime += CLOCK_SPEED;
-		totalBusyTime += CLOCK_SPEED;
-	}
+	// else if (currentServingType == (TRIM_COMMAND | IO_COMMAND))
+	// {
+	// 	totalMixTime += CLOCK_SPEED;
+	// 	totalBusyTime += CLOCK_SPEED;
+	// }
 	else
 	{
 		totalIOTime += CLOCK_SPEED;
