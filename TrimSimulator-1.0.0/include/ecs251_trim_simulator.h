@@ -23,7 +23,7 @@ private:
 	//Stat collection
 	double totalIOTime;			//IOTime : time used to process IO command
 	double totalTrimTime;		//TrimTime : time used to process trim command
-	double totalMixTime;		//MixTime : time when both trim and io command is processed
+	//double totalMixTime;		//MixTime : time when both trim and io command is processed
 
 	//average queue length computation
 	unsigned long IOqueuelength;
