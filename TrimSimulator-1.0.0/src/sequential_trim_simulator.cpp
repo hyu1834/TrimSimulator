@@ -164,7 +164,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		advanceClock();
 		count++;
 	}
-	fprintf(ecs_log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
+	fprintf(seq_log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
 
 	fclose(seq_log);
 
