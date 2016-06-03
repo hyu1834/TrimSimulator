@@ -151,7 +151,7 @@ void Hold_Trim_Simulator::startSimulation(double readProcessTime, double writePr
 
 		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
 		if (count % 10000 == 0) {
-			fprintf(ecs_log, "%.10lf,%lu,%lu,%lu\n", clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
+			fprintf(ecs_log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
 			//simLog<<std::setprecision(10)<<clock<<","<<IOqueuelength<<","<<Trimqueuelength<<","<<maxParallelOps-availableDriverSlot.size()<<"\n";
 			// std::cout<<commandCounter<<"  "<<commandPtr->size()<<"  "<<trimQueue.empty()<<"  "<<ioQueue.empty()<<"  "<<allCompleted()<<"\n";
 		}
@@ -164,7 +164,7 @@ void Hold_Trim_Simulator::startSimulation(double readProcessTime, double writePr
 		advanceClock();
 		count++;
 	}
-	fprintf(ecs_log, "%.10lf,%lu,%lu,%lu\n", clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
+	fprintf(ecs_log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
 
 	fclose(ecs_log);
 

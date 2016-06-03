@@ -19,6 +19,7 @@
 #include "queued_trim_simulator.h"
 #include "ecs251_trim_simulator.h"
 #include "semi_queued_trim_simulator.h"
+#include "hold_trim_simulator.h"
 
 
 
@@ -93,10 +94,11 @@ int main(int argc, char** argv)	{
 
 	//simulation variables
 	int concurrent_command = 1;
-	bool sequential_trim=false;
-	bool queued_trim=false;
-	bool new_trim=false;
-	bool semi_queue_trim=false;
+	bool sequential_trim_simulation = false;
+	bool queued_trim_simulation = false;
+	bool new_trim_simulation = false;
+	bool semi_queue_trim_simulation = false;
+	bool hold_trim_simulation = false;
 
 	/*Parse the command line and load all input files*/
 	for(int i=1;i<argc;i++)	{
@@ -131,16 +133,19 @@ int main(int argc, char** argv)	{
 			}
 
 			else if((strcasecmp(argv[i]+1,"sq")==0)|| (strcasecmp(argv[i]+1,"-sequential")==0))	{
-				sequential_trim=true;
+				sequential_trim_simulation = true;
 			}//end else if
 			else if((strcasecmp(argv[i]+1,"q")==0)|| (strcasecmp(argv[i]+1,"-queued")==0))	{
-				queued_trim=true;
+				queued_trim_simulation = true;
 			}//end else if
 			else if((strcasecmp(argv[i]+1,"n")==0)|| (strcasecmp(argv[i]+1,"-new_trim")==0))	{
-				new_trim=true;
+				new_trim_simulation = true;
 			}//end else if
 			else if((strcasecmp(argv[i]+1,"sem")==0)|| (strcasecmp(argv[i]+1,"-semi_queue")==0))	{
-				semi_queue_trim=true;
+				semi_queue_trim_simulation = true;
+			}//end else if
+			else if((strcasecmp(argv[i]+1,"ht")==0)|| (strcasecmp(argv[i]+1,"-hold_trim")==0))	{
+				hold_trim_simulation = true;
 			}//end else if
 			else	{
 				std::cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
@@ -167,28 +172,34 @@ int main(int argc, char** argv)	{
 
 		
 
-	if(sequential_trim)	{
+	if(sequential_trim_simulation)	{
 		Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(commands, concurrent_command);
 		sts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 		delete sts;
 	}
 
-	if(queued_trim)	{
+	if(queued_trim_simulation)	{
 		Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(commands, concurrent_command);
 		qts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 		delete qts;
 	}
 
-	if(new_trim)	{
+	if(new_trim_simulation)	{
 		ECS_251_Trim_Simulator* ets = new ECS_251_Trim_Simulator(commands, concurrent_command);
 		ets->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 		delete ets;
 	}
 
-	if(semi_queue_trim)	{
+	if(semi_queue_trim_simulation)	{
 		Semi_Queued_Trim_Simulator* sqts = new Semi_Queued_Trim_Simulator(commands, concurrent_command);
 		sqts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
 		delete sqts;
+	}
+
+	if(hold_trim_simulation)	{
+		Hold_Trim_Simulator* hts = new Hold_Trim_Simulator(commands, concurrent_command);
+		hts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
+		delete hts;
 	}
 
 
