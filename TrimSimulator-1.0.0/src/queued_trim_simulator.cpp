@@ -59,6 +59,9 @@ void Queued_Trim_Simulator::startSimulation(double readProcessTime, double write
 		StatCollect();
 		advanceClock();
 	}
+	std::cout << std::setprecision(10) << "System was blocking " << (double)totalBlockingTime / (double)clock * 100.0 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was busy " << (double)totalBusyTime / (double)clock * 100.0 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was idle " << (double)totalIdleTime / (double)clock * 100.0 << "% of time\n\n";
 
 	std::cout << "System was blocking " << totalBlockingTime / clock * 100 << "% of time\n";
 	std::cout << "System average queue length " << (long double)queuelength / (long double)queuelengthCount << "\n";
