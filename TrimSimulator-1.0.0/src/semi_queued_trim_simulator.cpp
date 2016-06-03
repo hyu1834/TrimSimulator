@@ -158,7 +158,7 @@ void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double 
 		advanceClock();
 		count++;
 	}
-	fprintf(sqt_log, "%.10lf,%lu,%lu,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
+	fprintf(sqt_log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 
 	fclose(sqt_log);
 

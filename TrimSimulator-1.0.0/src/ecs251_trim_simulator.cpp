@@ -168,7 +168,7 @@ void ECS_251_Trim_Simulator::startSimulation(double readProcessTime, double writ
 		advanceClock();
 		count++;
 	}
-	fprintf(ecs_log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+	fprintf(ecs_log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 
 	fclose(ecs_log);
 
