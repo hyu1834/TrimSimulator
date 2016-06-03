@@ -151,7 +151,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		}
 
 		if(count %10000 == 0)	{
-			fprintf(seq_log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size());
+			fprintf(seq_log, "%.10lf,%lu,%lu,%lu,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 			//simLog<<std::setprecision(10)<<clock<<","<<IOqueuelength<<","<<Trimqueuelength<<","<<maxParallelOps-availableDriverSlot.size()<<"\n";
 			// std::cout<<commandCounter<<"  "<<commandPtr->size()<<"  "<<trimQueue.empty()<<"  "<<ioQueue.empty()<<"  "<<allCompleted()<<"\n";
 		}
