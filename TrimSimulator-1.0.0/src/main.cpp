@@ -10,12 +10,16 @@
 //Local Includes
 #include "macro.h"
 #include "io_utils.h"
-#include "sequential_trim_simulator.h"
-#include "queued_trim_simulator.h"
+
 #include "command.h"
 #include "trim_command.h"
 #include "io_command.h"
+
+#include "sequential_trim_simulator.h"
+#include "queued_trim_simulator.h"
 #include "ecs251_trim_simulator.h"
+#include "semi_queued_trim_simulator.h"
+
 
 
 std::string version="0.0.1";
@@ -92,6 +96,7 @@ int main(int argc, char** argv)	{
 	bool sequential_trim=false;
 	bool queued_trim=false;
 	bool new_trim=false;
+	bool semi_queue_trim=false;
 
 	/*Parse the command line and load all input files*/
 	for(int i=1;i<argc;i++)	{
@@ -134,6 +139,9 @@ int main(int argc, char** argv)	{
 			else if((strcasecmp(argv[i]+1,"n")==0)|| (strcasecmp(argv[i]+1,"-new_trim")==0))	{
 				new_trim=true;
 			}//end else if
+			else if((strcasecmp(argv[i]+1,"sem")==0)|| (strcasecmp(argv[i]+1,"-semi_queue")==0))	{
+				semi_queue_trim=true;
+			}//end else if
 			else	{
 				std::cerr<<"Error: Unrecognized option - "<<argv[i]<<"\n";
 			}
@@ -162,16 +170,25 @@ int main(int argc, char** argv)	{
 	if(sequential_trim)	{
 		Sequential_Trim_Simulator* sts = new Sequential_Trim_Simulator(commands, concurrent_command);
 		sts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
+		delete sts;
 	}
 
 	if(queued_trim)	{
 		Queued_Trim_Simulator* qts = new Queued_Trim_Simulator(commands, concurrent_command);
 		qts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
+		delete qts;
 	}
 
 	if(new_trim)	{
 		ECS_251_Trim_Simulator* ets = new ECS_251_Trim_Simulator(commands, concurrent_command);
 		ets->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
+		delete ets;
+	}
+
+	if(semi_queue_trim)	{
+		Semi_Queued_Trim_Simulator* sqts = new Semi_Queued_Trim_Simulator(commands, concurrent_command);
+		sqts->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
+		delete sqts;
 	}
 
 
