@@ -13,8 +13,8 @@ Semi_Queued_Trim_Simulator::~Semi_Queued_Trim_Simulator()	{
 }
 
 void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime)	{
-	FILE* sqt_log;
-	sqt_log = fopen("../../../semi_queue_simulator.csv", "w");
+	FILE* log;
+	log = fopen("../../../semi_queue_simulator.csv", "w");
 	int count = 0;
 	int commandCounter = 0;
 
@@ -147,7 +147,7 @@ void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double 
 		}
 
 		if(count %10000 == 0)	{
-			fprintf(sqt_log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+			fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 		}
 		if((commandCounter == commandPtr->size()) && qacQueue.empty() && nqacQueue.empty() && allCompleted())	{
 			break;
@@ -158,19 +158,19 @@ void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double 
 		advanceClock();
 		count++;
 	}
-	fprintf(sqt_log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+	fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 
-	fclose(sqt_log);
+	fclose(log);
 
 	std::cout << std::setprecision(10) << "System was blocking "<< (double)totalBlockingTime / (double)clock * 100.0<<"% of time\n";
 	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n";
 	std::cout << std::setprecision(10) << "System was idle " << (double)totalIdleTime / (double)clock * 100.0 << "% of time\n\n";
 
-	std::cout << std::setprecision(10) << "System was prcessing IO " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
-	std::cout << std::setprecision(10) << "System was processing TRIM " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n\n";
+	std::cout << std::setprecision(10) << "System was prcessing NonQueueable " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was processing Queueable " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n\n";
 
-	std::cout << std::setprecision(10) << "System average IO queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
-	std::cout << std::setprecision(10) << "System average Trim queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average NonQueueable queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average Queueable queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
 }
 
 void Semi_Queued_Trim_Simulator::StatCollect()
