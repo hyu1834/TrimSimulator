@@ -147,7 +147,7 @@ void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double 
 		}
 
 		if(count %10000 == 0)	{
-			fprintf(sqt_log, "%.10lf,%lu,%lu,%lu,%lu,%lu,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+			fprintf(sqt_log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 		}
 		if((commandCounter == commandPtr->size()) && qacQueue.empty() && nqacQueue.empty() && allCompleted())	{
 			break;
