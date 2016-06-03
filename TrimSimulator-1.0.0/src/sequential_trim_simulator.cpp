@@ -13,6 +13,9 @@ Sequential_Trim_Simulator::~Sequential_Trim_Simulator()	{
 }
 
 void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime)	{
+	FILE* seq_log;
+	seq_log = fopen("../../../sequential_simulator.csv", "w");
+	int count = 0;
 	int commandCounter = 0;
 
 	// start simulation
@@ -147,8 +150,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 			//printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
 		}
 
-		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
-		std::cout << "Clock " << clock << "\n";
+		if(count %10000 == 0)	{
+			fprintf(seq_log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size());
+			//simLog<<std::setprecision(10)<<clock<<","<<IOqueuelength<<","<<Trimqueuelength<<","<<maxParallelOps-availableDriverSlot.size()<<"\n";
+			// std::cout<<commandCounter<<"  "<<commandPtr->size()<<"  "<<trimQueue.empty()<<"  "<<ioQueue.empty()<<"  "<<allCompleted()<<"\n";
+		}
 		if((commandCounter == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted())	{
 			break;
 		}
@@ -156,7 +162,11 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		//Stat collection before advancing clock
 		StatCollect();
 		advanceClock();
+		count++;
 	}
+	fprintf(ecs_log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
+
+	fclose(seq_log);
 
 	std::cout << std::setprecision(10) << "System was blocking "<< (double)totalBlockingTime / (double)clock * 100.0<<"% of time\n";
 	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n";

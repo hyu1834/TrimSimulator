@@ -2,19 +2,17 @@
 	#define SEQUENTIAL_TRIM_SIMULATOR_H
 //Standard libraries
 #include <stdio.h>
+#include <iomanip>
 #include <queue>
-// #include <vector>
 
 //Third parties libraries
 
 
 //Local libraries
-// #include "command.h"
 #include "trim_command.h"
 #include "io_command.h"
 #include "simulator.h"
 
-//MACRO
 
 class Sequential_Trim_Simulator: public Simulator	{
 	private:
