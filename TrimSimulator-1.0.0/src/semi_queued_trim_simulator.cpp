@@ -132,6 +132,11 @@ void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double 
 					break;
 				}
 			}
+			else if(nexReadCommand != NULL)	{
+				servicesTime = readProcessTime;
+				readQueue.pop();
+				driverServingType[driverSlotIndex] = READ_COMMAND;
+			}
 			// set the slot with services time
 			if(servicesTime > 0.0)	{
 				setDriverBusyTimer(driverSlotIndex, servicesTime);
