@@ -33,11 +33,15 @@ void Simulator::advanceClock()	{
 
 void Simulator::advanceDriverBusyTime()	{
 	for(int i = 0; i < maxParallelOps; i++)	{
-		// advance each driver time by clock speed
-		driverBusyTime[i] -= CLOCK_SPEED;
-		// if the driver time became <= 0, then put it back to abailableDriverSlot
-		if(driverBusyTime[i] <= 0.0 && availableDriverSlot.size() != maxParallelOps)	{
-			availableDriverSlot.push(i);
+		//only decrement and check re-add if it's busy
+		if(driverBusyTime[i] > 0) {
+			//advance each driver time by clock speed
+			driverBusyTime[i] -= CLOCK_SPEED;
+			//if the driver time became <= 0, then put it back to abailableDriverSlot, reset busy time
+			if(driverBusyTime[i] <= 0.0 && availableDriverSlot.size() != maxParallelOps)	{
+				availableDriverSlot.push(i);
+				driverBusyTime[i] = 0.0;
+			}
 		}
 	}
 }
