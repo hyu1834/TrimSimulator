@@ -70,7 +70,7 @@ void Simulator::setDriverBusyTimer(int operation, double time)	{
 // }
 
 bool Simulator::allCompleted()	{
-	return (availableDriverSlot.size() == maxParallelOps)? true : false;
+	return (availableDriverSlot.size() == maxParallelOps);
 }
 
 void Simulator::StatCollect()
