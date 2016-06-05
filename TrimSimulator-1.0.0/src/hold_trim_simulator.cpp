@@ -56,9 +56,6 @@ void Hold_Trim_Simulator::startSimulation(double readProcessTime, double writePr
 					nextIOCommand = ioQueue.front();
 				}
 
-				// printf("%.9lf\n", clock);
-				// std::cout<<"  "<<availableDriverSlot.size()<<"  "<<currentServingType<<"  "<<trimQueue.size()<<"  "<<ioQueue.size()<<"\n";
-
 				double servicesTime = 0.0;
 				// if both there are command from either queue
 				if (nextTrimCommand != NULL && nextIOCommand != NULL) {
@@ -144,16 +141,13 @@ void Hold_Trim_Simulator::startSimulation(double readProcessTime, double writePr
 		}
 		else {
 		}
+
 		if (allCompleted()) {
 			currentServingType = ANY_COMMAND;
-			//printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
 		}
 
-		// std::cout<<driverBusy<<"  "<<driverBusyTime<<"\n";
 		if (count % 10000 == 0) {
-			fprintf(log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
-			//simLog<<std::setprecision(10)<<clock<<","<<IOqueuelength<<","<<Trimqueuelength<<","<<maxParallelOps-availableDriverSlot.size()<<"\n";
-			// std::cout<<commandCounter<<"  "<<commandPtr->size()<<"  "<<trimQueue.empty()<<"  "<<ioQueue.empty()<<"  "<<allCompleted()<<"\n";
+			fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 		}
 		if ((commandCounter == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted()) {
 			break;
@@ -164,10 +158,11 @@ void Hold_Trim_Simulator::startSimulation(double readProcessTime, double writePr
 		advanceClock();
 		count++;
 	}
-	fprintf(log, "%.10lf,%lu,%lu,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)(maxParallelOps)-availableDriverSlot.size());
+	fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
 
 	fclose(log);
 
+	std::cout<<totalBusyTime<<"\n";;
 	std::cout << std::setprecision(10) << "System was blocking " << (double)totalBlockingTime / (double)clock * 100.0 << "% of time\n";
 	std::cout << std::setprecision(10) << "System was busy " << (double)totalBusyTime / (double)clock * 100.0 << "% of time\n";
 	std::cout << std::setprecision(10) << "System was idle " << (double)totalIdleTime / (double)clock * 100.0 << "% of time\n\n";

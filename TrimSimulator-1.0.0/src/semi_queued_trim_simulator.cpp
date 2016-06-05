@@ -180,7 +180,7 @@ void Semi_Queued_Trim_Simulator::StatCollect()
 	{
 		totalIdleTime += CLOCK_SPEED;
 	}
-	else if(currentServingType == TRIM_COMMAND)
+	else if(currentServingType == QUEUEABLE_COMMAND)
 	{
 		totalTrimTime += CLOCK_SPEED;
 		totalBusyTime += CLOCK_SPEED;

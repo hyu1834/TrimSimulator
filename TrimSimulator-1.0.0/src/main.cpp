@@ -17,7 +17,7 @@
 
 #include "sequential_trim_simulator.h"
 #include "queued_trim_simulator.h"
-#include "ecs251_trim_simulator.h"
+#include "io_trim_simulator.h"
 #include "semi_queued_trim_simulator.h"
 #include "hold_trim_simulator.h"
 
@@ -96,7 +96,7 @@ int main(int argc, char** argv)	{
 	int concurrent_command = 1;
 	bool sequential_trim_simulation = false;
 	bool queued_trim_simulation = false;
-	bool new_trim_simulation = false;
+	bool io_trim_simulation = false;
 	bool semi_queue_trim_simulation = false;
 	bool hold_trim_simulation = false;
 
@@ -138,8 +138,8 @@ int main(int argc, char** argv)	{
 			else if((strcasecmp(argv[i]+1,"q")==0)|| (strcasecmp(argv[i]+1,"-queued")==0))	{
 				queued_trim_simulation = true;
 			}//end else if
-			else if((strcasecmp(argv[i]+1,"n")==0)|| (strcasecmp(argv[i]+1,"-new_trim")==0))	{
-				new_trim_simulation = true;
+			else if((strcasecmp(argv[i]+1,"it")==0)|| (strcasecmp(argv[i]+1,"-io_trim")==0))	{
+				io_trim_simulation = true;
 			}//end else if
 			else if((strcasecmp(argv[i]+1,"sem")==0)|| (strcasecmp(argv[i]+1,"-semi_queue")==0))	{
 				semi_queue_trim_simulation = true;
@@ -184,10 +184,10 @@ int main(int argc, char** argv)	{
 		delete qts;
 	}
 
-	if(new_trim_simulation)	{
-		ECS_251_Trim_Simulator* ets = new ECS_251_Trim_Simulator(commands, concurrent_command);
-		ets->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
-		delete ets;
+	if(io_trim_simulation)	{
+		IO_Trim_Simulator* iots = new IO_Trim_Simulator(commands, concurrent_command);
+		iots->startSimulation(readProcessTime, writeProcessTime, trimProcessTime);
+		delete iots;
 	}
 
 	if(semi_queue_trim_simulation)	{
