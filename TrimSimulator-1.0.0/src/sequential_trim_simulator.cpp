@@ -16,13 +16,13 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 	FILE* log;
 	log = fopen("../../../sequential_simulator.csv", "w");
 	int count = 0;
-	int commandCounter = 0;
+	int issuedCommandCount = 0;
 
 	// start simulation
 	while(1)	{
 		// if there are command that has not been issue yet
-		if(commandCounter < commandPtr->size())	{
-			Command* nextCommand = commandPtr->at(commandCounter);
+		if(issuedCommandCount < commandPtr->size())	{
+			Command* nextCommand = commandPtr->at(issuedCommandCount);
 			if(nextCommand->getIssueTime() <= clock)	{
 				// put the command in to queue
 				if(nextCommand->getType() == TRIM_COMMAND)	{
@@ -32,130 +32,96 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 					ioQueue.push((IO_Command*)nextCommand);
 				}
 				// move on to the next command
-				commandCounter++;
+				issuedCommandCount++;
 			}
 		}
-
-		advanceDriverBusyTime();
+		
+		// advance the clock only if there are something running
+		if(availableDriverSlot.size() != maxparallelops)	{
+			advanceDriverBusyTime();
+		}
+		
 		// check if simulator can execute any command
-		if(!availableDriverSlot.empty())	{
-			// while there are available slot, and there are commands in the queue
-			while(!availableDriverSlot.empty() && (!trimQueue.empty() || !ioQueue.empty()))	{
+		while(!availableDriverSlot.empty())	{
+			// if theres no command in any queue
+			if(trimQueue.empty() && ioQueue.empty())	{
+				break;
+			}
+			// get the index of driver slot
+			int driverSlotIndex = availableDriverSlot.front();
+			// now check to see which command should be serve first
+			Trim_Command* nextTrimCommand = NULL;
+			IO_Command* nextIOCommand = NULL;
+			// check both queue, see which one is not empty
+			if(!trimQueue.empty())	{
+				nextTrimCommand = trimQueue.front();
+			}
+			if(!ioQueue.empty())	{
+				nextIOCommand = ioQueue.front();
+			}
 
-				// get the index of driver slot
-				int driverSlotIndex = availableDriverSlot.front();
-			
-				// now check to see which command should be serve first
-				Trim_Command* nextTrimCommand = NULL;
-				IO_Command* nextIOCommand = NULL;
-				// check both queue, see which one is not empty
-				if(!trimQueue.empty())	{
-					nextTrimCommand = trimQueue.front();
+			double servicesTime = 0.0;
+			// if both there are command from either queue
+			if(nextTrimCommand != NULL && nextIOCommand != NULL)	{
+				double timeDiff = nextIOCommand->getIssueTime() - nextTrimCommand->getIssueTime();
+				if((timeDiff > 0) && ((currentServingType == ANY_COMMAND) || (currentServingType == TRIM_COMMAND)))	{
+					servicesTime = trimProcessTime;
+					// pop it from the queue
+					trimQueue.pop();
+					currentServingType = TRIM_COMMAND;
 				}
-				if(!ioQueue.empty())	{
-					nextIOCommand = ioQueue.front();
+				else if ((timeDiff < 0) && ((currentServingType == ANY_COMMAND) || (currentServingType == IO_COMMAND)))	{
+					// set the driver busy time
+					servicesTime = (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
+					// pop the command off ioQueue
+					ioQueue.pop();
+					currentServingType = IO_COMMAND;
 				}
-
-				// printf("%.9lf\n", clock);
-				// std::cout<<"  "<<availableDriverSlot.size()<<"  "<<currentServingType<<"  "<<trimQueue.size()<<"  "<<ioQueue.size()<<"\n";
-
-				double servicesTime = 0.0;
-				// if both there are command from either queue
-				if(nextTrimCommand != NULL && nextIOCommand != NULL)	{
-					double timeDiff = nextIOCommand->getIssueTime() - nextTrimCommand->getIssueTime();
-					if(currentServingType == ANY_COMMAND)	{
-						// TRIM
-						if(timeDiff > 0)	{
-							// execute the command
-							servicesTime = trimProcessTime;
-							// pop it from the queue
-							trimQueue.pop();
-							currentServingType = TRIM_COMMAND;
-						}
-						// Normal IO
-						else	{
-							// set the driver busy time
-							servicesTime = (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
-							// pop the command off ioQueue
-							ioQueue.pop();
-							currentServingType = IO_COMMAND;
-						}
-					}
-					else if(currentServingType == TRIM_COMMAND)	{
-						if(timeDiff > 0)	{
-							// execute the command
-							servicesTime = trimProcessTime;
-							// pop it from the queue
-							trimQueue.pop();
-							currentServingType = TRIM_COMMAND;
-						}
-						else
-						{
-							break;
-						}
-					}
-					else if(currentServingType == IO_COMMAND)	{
-						if(timeDiff < 0)	{
-							// set the driver busy time
-							servicesTime = (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
-							// pop the command off ioQueue
-							ioQueue.pop();
-							currentServingType = IO_COMMAND;
-						}
-						else
-						{
-							break;
-						}
-					}
-				}
-				// if there is some trim command in trim queue
-				else if(nextTrimCommand != NULL)	{
-					if(currentServingType == TRIM_COMMAND || currentServingType == ANY_COMMAND)	{
-						// execute the command
-						servicesTime = trimProcessTime;
-						// pop it from the queue
-						trimQueue.pop();
-						currentServingType = TRIM_COMMAND;
-					}
-					else
-					{
-						break;
-					}
-				}
-				// if there is some trim command in io queue
-				else if(nextIOCommand != NULL)	{
-					if(currentServingType == IO_COMMAND || currentServingType == ANY_COMMAND)	{
-						servicesTime = (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
-						// pop the command off ioQueue
-						ioQueue.pop();
-						currentServingType = IO_COMMAND;
-					}
-					else
-					{
-						break;
-					}
-				}
-				// set the slot with services time
-				if(servicesTime > 0.0)	{
-					setDriverBusyTimer(driverSlotIndex, servicesTime);
-					// pop it off the queue
-					availableDriverSlot.pop();
+				else	{
+					break;
 				}
 			}
+			else if(nextTrimCommand != NULL)	{
+				if((currentServingType == ANY_COMMAND) || (currentServingType == TRIM_COMMAND))	{
+					servicesTime = trimProcessTime;
+					// pop it from the queue
+					trimQueue.pop();
+					currentServingType = TRIM_COMMAND;
+				}
+				else	{
+					break;
+				}
+			}
+			else if(nextIOCommand != NULL)	{
+				if((currentServingType == ANY_COMMAND) || (currentServingType == IO_COMMAND))	{
+					// set the driver busy time
+					servicesTime = (nextIOCommand->getType() == WRITE_COMMAND)?writeProcessTime:readProcessTime;
+					// pop the command off ioQueue
+					ioQueue.pop();
+					currentServingType = IO_COMMAND;
+				}
+				else	{
+					break;
+				}
+			}
+			// set the slot with services time
+			if(servicesTime > 0.0)	{
+				setDriverBusyTimer(driverSlotIndex, servicesTime);
+				// pop it off the queue
+				availableDriverSlot.pop();
+			}
 		}
-		else	{
-		}
+
 		if (allCompleted()) {
 			currentServingType = ANY_COMMAND;
-			//printf("all completed at: %.9lf, totalBusyTime: %.9lf\n", clock, totalBlockingTime);
 		}
 
 		if(count %10000 == 0)	{
-			fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+			fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), issuedCommandCount, commandPtr->size()-issuedCommandCount);
 			//simLog<<std::setprecision(10)<<clock<<","<<IOqueuelength<<","<<Trimqueuelength<<","<<maxParallelOps-availableDriverSlot.size()<<"\n";
 			// std::cout<<commandCounter<<"  "<<commandPtr->size()<<"  "<<trimQueue.empty()<<"  "<<ioQueue.empty()<<"  "<<allCompleted()<<"\n";
 		}
-		if((commandCounter == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted())	{
+		if((issuedCommandCount == commandPtr->size()) && trimQueue.empty() && ioQueue.empty() && allCompleted())	{
 			break;
 		}
 		
@@ -164,7 +130,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		advanceClock();
 		count++;
 	}
-	fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+	fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, ioQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), issuedCommandCount, commandPtr->size()-issuedCommandCount);
 
 	fclose(log);
 
@@ -186,26 +152,24 @@ void Sequential_Trim_Simulator::StatCollect()
 	{
 		totalIdleTime += CLOCK_SPEED;
 	}
-	else if(currentServingType == TRIM_COMMAND)
-	{
-		totalTrimTime += CLOCK_SPEED;
+	else	{
 		totalBusyTime += CLOCK_SPEED;
-	}
-	else
-	{
-		totalIOTime += CLOCK_SPEED;
-		totalBusyTime += CLOCK_SPEED;
+		if(currentServingType == TRIM_COMMAND)	{
+			totalTrimTime += CLOCK_SPEED;
+		}
+		else	{
+			totalIOTime += CLOCK_SPEED;
+		}
 	}
 
-	if (availableDriverSlot.empty() && (!trimQueue.empty() || !ioQueue.empty()))
-	{
+	//if either one queue still have command and the available slot > 0
+	if (availableDriverSlot.empty() && (!trimQueue.empty() || !ioQueue.empty()))	{
 		totalBlockingTime += CLOCK_SPEED;
 	}
 
 	//compute average queue length
 	//record every QUEUE_LENGTH_RES
-	if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
-	{
+	if (((clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount) > 0) && (clock > CLOCK_SPEED))	{
 		IOqueuelength += ioQueue.size();
 		Trimqueuelength += trimQueue.size();
 		queuelengthCount++;

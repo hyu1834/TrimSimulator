@@ -70,13 +70,6 @@ void Simulator::setDriverBusyTimer(int operation, double time)	{
 
 bool Simulator::allCompleted()	{
 	return (availableDriverSlot.size() == maxParallelOps)? true : false;
-	// for(int i = 0; i < maxParallelOps; i++)	{
-	// 	// if any one of the time is > 0.0 then is false
-	// 	if(driverBusyTime[i] > 0.0)	{
-	// 		return false;
-	// 	}
-	// }
-	// return true;
 }
 
 void Simulator::StatCollect()
