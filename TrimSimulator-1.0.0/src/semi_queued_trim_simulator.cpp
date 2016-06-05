@@ -3,9 +3,11 @@
 Semi_Queued_Trim_Simulator::Semi_Queued_Trim_Simulator(std::vector<Command*>& commands, int maxparallelops):Simulator(commands, maxparallelops)	{
 	totalIOTime = 0;
 	totalTrimTime = 0;
-	IOqueuelength = 0;
-	Trimqueuelength = 0;
-	queuelengthCount = 0;
+	writeQueueLength = 0;
+	readQueueLength = 0;
+	trimQueueLength = 0;
+	queueLengthCount = 0;
+	driverServingType = new char[maxParallelOps];
 }
 
 Semi_Queued_Trim_Simulator::~Semi_Queued_Trim_Simulator()	{
@@ -14,142 +16,140 @@ Semi_Queued_Trim_Simulator::~Semi_Queued_Trim_Simulator()	{
 
 void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime)	{
 	FILE* log;
-	log = fopen("../../../semi_queue_simulator.csv", "w");
+	log = fopen("../../../semi_simulator.csv", "w");
 	int count = 0;
-	int commandCounter = 0;
+	int issuedCommandCount = 0;
 
 	// start simulation
 	while(1)	{
 		// if there are command that has not been issue yet
-		if(commandCounter < commandPtr->size())	{
-			Command* nextCommand = commandPtr->at(commandCounter);
+		if(issuedCommandCount < commandPtr->size())	{
+			Command* nextCommand = commandPtr->at(issuedCommandCount);
 			if(nextCommand->getIssueTime() <= clock)	{
 				// put the command in to queue
-				if(nextCommand->getType() == TRIM_COMMAND || nextCommand->getType() == READ_COMMAND)	{
-					qacQueue.push(nextCommand);
+				if(nextCommand->getType() == TRIM_COMMAND)	{
+					trimQueue.push((Trim_Command*)nextCommand);
+				}
+				else if(nextCommand->getType() == READ_COMMAND)	{
+					readQueue.push((IO_Command*)nextCommand);
 				}
 				else	{
-					nqacQueue.push(nextCommand);
+					writeQueue.push((IO_Command*)nextCommand);
 				}
 				// move on to the next command
-				commandCounter++;
+				issuedCommandCount++;
 			}
 		}
-
-		advanceDriverBusyTime();
+		
+		// advance the clock only if there are something running
+		if(availableDriverSlot.size() != maxParallelOps)	{
+			advanceDriverBusyTime();
+		}
+		
 		// check if simulator can execute any command
-		if(!availableDriverSlot.empty())	{
-			// while there are available slot, and there are commands in the queue
-			while(!availableDriverSlot.empty() && (!qacQueue.empty() || !nqacQueue.empty()))	{
+		while(!availableDriverSlot.empty())	{
+			// if theres no command in any queue
+			if(trimQueue.empty() && writeQueue.empty() && readQueue.empty())	{
+				break;
+			}
+			// get the index of driver slot
+			int driverSlotIndex = availableDriverSlot.front();
+			// now check to see which command should be serve first
+			Trim_Command* nextTrimCommand = NULL;
+			IO_Command* nextWriteCommand = NULL;
+			IO_Command* nexReadCommand = NULL;
+			// check both queue, see which one is not empty
+			if(!trimQueue.empty())	{
+				nextTrimCommand = trimQueue.front();
+			}
+			if(!writeQueue.empty())	{
+				nextWriteCommand = writeQueue.front();
+			}
+			if(!readQueue.empty())	{
+				nexReadCommand = readQueue.front();
+			}
 
-				// get the index of driver slot
-				int driverSlotIndex = availableDriverSlot.front();
-			
-				// now check to see which command should be serve first
-				Command* nextQueueableCommand = NULL;
-				Command* nextNonQueueableCommand = NULL;
-				// check both queue, see which one is not empty
-				if(!qacQueue.empty())	{
-					nextQueueableCommand = qacQueue.front();
+			double servicesTime = 0.0;
+			// if both there are command from either queue
+			if(nextTrimCommand != NULL && nextWriteCommand != NULL)	{
+				double timeDiff = nextWriteCommand->getIssueTime() - nextTrimCommand->getIssueTime();
+				if((timeDiff > 0) && ((currentServingType == ANY_COMMAND) || (currentServingType == TRIM_COMMAND)))	{
+					servicesTime = trimProcessTime;
+					// pop it from the queue
+					trimQueue.pop();
+					driverServingType[driverSlotIndex] = TRIM_COMMAND;
+					currentServingType = TRIM_COMMAND;
 				}
-				if(!nqacQueue.empty())	{
-					nextNonQueueableCommand = nqacQueue.front();
+				else if ((timeDiff < 0) && ((currentServingType == ANY_COMMAND) || (currentServingType == WRITE_COMMAND)))	{
+					// set the driver busy time
+					servicesTime = writeProcessTime;
+					// pop the command off ioQueue
+					writeQueue.pop();
+					driverServingType[driverSlotIndex] =  WRITE_COMMAND;
+					currentServingType = WRITE_COMMAND;
 				}
-
-				double servicesTime = 0.0;
-				// if both there are command from either queue
-				if(nextQueueableCommand != NULL && nextNonQueueableCommand != NULL)	{
-					double timeDiff = nextNonQueueableCommand->getIssueTime() - nextQueueableCommand->getIssueTime();
-					if(currentServingType == ANY_COMMAND)	{
-						// TRIM
-						if(timeDiff > 0)	{
-							// execute the command
-							servicesTime = (nextQueueableCommand->getType() == TRIM_COMMAND)?trimProcessTime:readProcessTime;
-							// pop it from the queue
-							qacQueue.pop();
-							currentServingType = QUEUEABLE_COMMAND;
-						}
-						// Normal IO
-						else	{
-							// set the driver busy time
-							servicesTime = writeProcessTime;
-							// pop the command off nqacQueue
-							nqacQueue.pop();
-							currentServingType = NONQUEUEABLE_COMMEND;
-						}
-					}
-					else if(currentServingType == QUEUEABLE_COMMAND)	{
-						if(timeDiff > 0)	{
-							// execute the command
-							servicesTime = (nextQueueableCommand->getType() == TRIM_COMMAND)?trimProcessTime:readProcessTime;
-							// pop it from the queue
-							qacQueue.pop();
-							//currentServingType = QUEUEABLE_COMMAND;
-						}
-						else
-						{
-							break;
-						}
-					}
-					else if(currentServingType == NONQUEUEABLE_COMMEND)	{
-						if(timeDiff < 0)	{
-							// set the driver busy time
-							servicesTime = writeProcessTime;
-							// pop the command off nqacQueue
-							nqacQueue.pop();
-							//currentServingType = NONQUEUEABLE_COMMEND;
-						}
-						else
-						{
-							break;
-						}
-					}
+				else if(nexReadCommand != NULL)	{
+					servicesTime = readProcessTime;
+					readQueue.pop();
+					driverServingType[driverSlotIndex] = READ_COMMAND;
 				}
-				// if there is some trim command in trim queue
-				else if(nextQueueableCommand != NULL)	{
-					if(currentServingType == QUEUEABLE_COMMAND || currentServingType == ANY_COMMAND)	{
-						// execute the command
-						servicesTime = (nextQueueableCommand->getType() == TRIM_COMMAND)?trimProcessTime:readProcessTime;
-						// pop it from the queue
-						qacQueue.pop();
-						currentServingType = QUEUEABLE_COMMAND;
-					}
-					else
-					{
-						break;
-					}
-				}
-				// if there is some trim command in io queue
-				else if(nextNonQueueableCommand != NULL)	{
-					if(currentServingType == NONQUEUEABLE_COMMEND || currentServingType == ANY_COMMAND)	{
-						servicesTime = writeProcessTime;
-						// pop the command off nqacQueue
-						nqacQueue.pop();
-						currentServingType = NONQUEUEABLE_COMMEND;
-					}
-					else
-					{
-						break;
-					}
-				}
-				// set the slot with services time
-				if(servicesTime > 0.0)	{
-					setDriverBusyTimer(driverSlotIndex, servicesTime);
-					// pop it off the queue
-					availableDriverSlot.pop();
+				else	{
+					break;
 				}
 			}
+			else if(nextTrimCommand != NULL)	{
+				if((currentServingType == ANY_COMMAND) || (currentServingType == TRIM_COMMAND))	{
+					servicesTime = trimProcessTime;
+					// pop it from the queue
+					trimQueue.pop();
+					driverServingType[driverSlotIndex] = TRIM_COMMAND;
+					currentServingType = TRIM_COMMAND;
+				}
+				else if(nexReadCommand != NULL)	{
+					servicesTime = readProcessTime;
+					readQueue.pop();
+					driverServingType[driverSlotIndex] = READ_COMMAND;
+				}
+				else	{
+					break;
+				}
+			}
+			else if(nextWriteCommand != NULL)	{
+				if((currentServingType == ANY_COMMAND) || (currentServingType == WRITE_COMMAND))	{
+					// set the driver busy time
+					servicesTime = writeProcessTime;
+					// pop the command off ioQueue
+					writeQueue.pop();
+					driverServingType[driverSlotIndex] = WRITE_COMMAND;
+					currentServingType = WRITE_COMMAND;
+				}
+				else if(nexReadCommand != NULL)	{
+					servicesTime = readProcessTime;
+					readQueue.pop();
+					driverServingType[driverSlotIndex] = READ_COMMAND;
+				}
+				else	{
+					break;
+				}
+			}
+			// set the slot with services time
+			if(servicesTime > 0.0)	{
+				setDriverBusyTimer(driverSlotIndex, servicesTime);
+				// pop it off the queue
+				availableDriverSlot.pop();
+			}
 		}
-		else	{
-		}
-		if (allCompleted()) {
+
+		if (allNonQueueableComplete()) {
 			currentServingType = ANY_COMMAND;
 		}
 
 		if(count %10000 == 0)	{
-			fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+			fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%lu,%d,%lu\n",clock, readQueue.size(), writeQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), issuedCommandCount, commandPtr->size()-issuedCommandCount);
+			//simLog<<std::setprecision(10)<<clock<<","<<IOqueuelength<<","<<Trimqueuelength<<","<<maxParallelOps-availableDriverSlot.size()<<"\n";
+			// std::cout<<commandCounter<<"  "<<commandPtr->size()<<"  "<<trimQueue.empty()<<"  "<<ioQueue.empty()<<"  "<<allCompleted()<<"\n";
 		}
-		if((commandCounter == commandPtr->size()) && qacQueue.empty() && nqacQueue.empty() && allCompleted())	{
+		if((issuedCommandCount == commandPtr->size()) && trimQueue.empty() && readQueue.empty() && writeQueue.empty() && allCompleted())	{
 			break;
 		}
 		
@@ -158,7 +158,7 @@ void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double 
 		advanceClock();
 		count++;
 	}
-	fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%d,%lu\n",clock, nqacQueue.size(), qacQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), commandCounter, commandPtr->size()-commandCounter);
+	fprintf(log, "%.10lf,%lu,%lu,%lu,%lu,%lu,%d,%lu\n",clock, readQueue.size(), writeQueue.size(), trimQueue.size(), (unsigned long)maxParallelOps-availableDriverSlot.size(), commandPtr->size(), issuedCommandCount, commandPtr->size()-issuedCommandCount);
 
 	fclose(log);
 
@@ -166,11 +166,22 @@ void Semi_Queued_Trim_Simulator::startSimulation(double readProcessTime, double 
 	std::cout << std::setprecision(10) << "System was busy "<< (double)totalBusyTime / (double)clock * 100.0<<"% of time\n";
 	std::cout << std::setprecision(10) << "System was idle " << (double)totalIdleTime / (double)clock * 100.0 << "% of time\n\n";
 
-	std::cout << std::setprecision(10) << "System was prcessing NonQueueable " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
-	std::cout << std::setprecision(10) << "System was processing Queueable " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n\n";
+	std::cout << std::setprecision(10) << "System was prcessing IO " << (double)totalIOTime / (double)clock * 100.0 << "% of time\n";
+	std::cout << std::setprecision(10) << "System was processing TRIM " << (double)totalTrimTime / (double)clock * 100.0 << "% of time\n\n";
 
-	std::cout << std::setprecision(10) << "System average NonQueueable queue length " << (long double)IOqueuelength / (long double)queuelengthCount << "\n";
-	std::cout << std::setprecision(10) << "System average Queueable queue length " << (long double)Trimqueuelength / (long double)queuelengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average Read queue length " << (long double)readQueueLength / (long double)queueLengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average Write queue length " << (long double)writeQueueLength / (long double)queueLengthCount << "\n";
+	std::cout << std::setprecision(10) << "System average Trim queue length " << (long double)trimQueueLength / (long double)queueLengthCount << "\n";
+}
+
+bool Semi_Queued_Trim_Simulator::allNonQueueableComplete()	{
+	int readEvent = 0;
+	for(int i = 0; i < maxParallelOps; i++)	{
+		if(driverServingType[i] == READ_COMMAND)	{
+			readEvent += 1;
+		}
+	}
+	return ((readEvent + availableDriverSlot.size()) == maxParallelOps);
 }
 
 void Semi_Queued_Trim_Simulator::StatCollect()
@@ -180,28 +191,27 @@ void Semi_Queued_Trim_Simulator::StatCollect()
 	{
 		totalIdleTime += CLOCK_SPEED;
 	}
-	else if(currentServingType == QUEUEABLE_COMMAND)
-	{
-		totalTrimTime += CLOCK_SPEED;
+	else	{
 		totalBusyTime += CLOCK_SPEED;
-	}
-	else
-	{
-		totalIOTime += CLOCK_SPEED;
-		totalBusyTime += CLOCK_SPEED;
+		if(currentServingType == TRIM_COMMAND)	{
+			totalTrimTime += CLOCK_SPEED;
+		}
+		else	{
+			totalIOTime += CLOCK_SPEED;
+		}
 	}
 
-	if (availableDriverSlot.empty() && (!qacQueue.empty() || !nqacQueue.empty()))
-	{
+	//if either one queue still have command and the available slot > 0
+	if (availableDriverSlot.empty() && (!trimQueue.empty() || !writeQueue.empty() || readQueue.empty()))	{
 		totalBlockingTime += CLOCK_SPEED;
 	}
 
 	//compute average queue length
 	//record every QUEUE_LENGTH_RES
-	if (clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queuelengthCount > 0 && clock > CLOCK_SPEED)
-	{
-		IOqueuelength += nqacQueue.size();
-		Trimqueuelength += qacQueue.size();
-		queuelengthCount++;
+	if (((clock - QUEUE_LENGTH_RES * CLOCK_SPEED * queueLengthCount) > 0) && (clock > CLOCK_SPEED))	{
+		readQueueLength += readQueue.size();
+		writeQueueLength += writeQueue.size();
+		trimQueueLength += trimQueue.size();
+		queueLengthCount++;
 	}
 }

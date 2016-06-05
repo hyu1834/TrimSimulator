@@ -6,6 +6,7 @@ Simulator::Simulator(std::vector<Command*>& commands, int maxparallelops)	{
 	// maximum parallel operation the driver can support
 	maxParallelOps = maxparallelops;
 	driverBusyTime = new double[maxParallelOps];
+	
 	// append available driver slot to the queue
 	for(int i = 0; i < maxParallelOps; i++)	{
 		driverBusyTime[i] = 0.0;

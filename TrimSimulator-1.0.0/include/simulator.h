@@ -20,6 +20,7 @@ class Simulator	{
 		double clock;
 		int maxParallelOps;
 		double* driverBusyTime;
+		
 
 		// Stat collection, could have more in derived class
 		double totalBlockingTime;			//Blocking : No available driver slot to process command and there's command in queue

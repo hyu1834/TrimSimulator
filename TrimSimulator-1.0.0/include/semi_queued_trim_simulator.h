@@ -16,19 +16,23 @@
 
 class Semi_Queued_Trim_Simulator: public Simulator	{
 	private:
-		// queue for queueable commands
-		std::queue<Command*> qacQueue;
+		char* driverServingType;
+		// queue for write commands
+		std::queue<IO_Command*> writeQueue;
+		//queue for read commands
+		std::queue<IO_Command*> readQueue;
 		// queue for non-queueable commands
-		std::queue<Command*> nqacQueue;
+		std::queue<Trim_Command*> trimQueue;
 		
 		//Stat collection
 		double totalIOTime;			//IOTime : time used to process IO command
 		double totalTrimTime;		//TrimTime : time used to process trim command
 
 		//average queue length computation
-		unsigned long IOqueuelength;
-		unsigned long Trimqueuelength;
-		unsigned long queuelengthCount;			//number of queue length recorded, average queue length is QueueLength(from above)/queuelengthCount
+		unsigned long writeQueueLength;
+		unsigned long readQueueLength;
+		unsigned long trimQueueLength;
+		unsigned long queueLengthCount;			//number of queue length recorded, average queue length is QueueLength(from above)/queuelengthCount
 
 	protected:
 	public:
@@ -36,6 +40,7 @@ class Semi_Queued_Trim_Simulator: public Simulator	{
 		~Semi_Queued_Trim_Simulator();
 		void startSimulation(double readProcessTime, double writeProcessTime, double trimProcessTime);
 		void StatCollect();
+		bool allNonQueueableComplete();
 };
 	
 #endif

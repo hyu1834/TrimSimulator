@@ -37,7 +37,7 @@ void Sequential_Trim_Simulator::startSimulation(double readProcessTime, double w
 		}
 		
 		// advance the clock only if there are something running
-		if(availableDriverSlot.size() != maxparallelops)	{
+		if(availableDriverSlot.size() != maxParallelOps)	{
 			advanceDriverBusyTime();
 		}
 		
