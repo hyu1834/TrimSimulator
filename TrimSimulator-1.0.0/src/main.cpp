@@ -34,6 +34,22 @@ void printHelp()	{
 				"DESCRIPTION\n"
 				"\tLinux Trim Simulator\n\n"
 				"\t-help, --help\n\t\tTrim Simulator Description\n\n"
+				"\t-a, --activity\n\t\t-a <activity files>\n\n"
+				"\t-s, --statistic\n\t\t-s <statistic files>\n\n"
+				"\t-c, --concurrent\n\t\t-c <number of concurrent commands>\n\n"
+				"\t-sq, --sequential\n\t\tsequential simulation\n\n"
+				"\t-q, --queued\n\t\tqueued simulation\n\n"
+				"\t-it, --io_trim\n\t\tio trim simulation\n\n"
+				"\t-sem, --semi_queue\n\t\tsemi-queued simulation\n\n"
+				"\t-ht, --hold_trim\n\t\thold trim simulation\n\n"
+				"EXAMPLE\n"
+				"\t./bin/TS -a <activity_filepath> -s <statistic_filepath> -c <number of concurrent commands> <simulation modes>\n"
+				"\t./bin/TS -a test_case/activity_gen6.csv -s test_case/statistic_gen2.csv -c 2 -sq \n"
+				"\t./bin/TS -a test_case/activity_gen6.csv -s test_case/statistic_gen2.csv -c 2 -q \n"
+				"\t./bin/TS -a test_case/activity_gen6.csv -s test_case/statistic_gen2.csv -c 2 -sem \n"
+				"\t./bin/TS -a test_case/activity_gen6.csv -s test_case/statistic_gen2.csv -c 2 -it \n"
+				"\t./bin/TS -a test_case/activity_gen6.csv -s test_case/statistic_gen2.csv -c 2 -ht \n"
+				"\t./bin/TS -a test_case/activity_gen6.csv -s test_case/statistic_gen2.csv -c 2 -sq -q -sem -it -ht\n"
 				;
 }//end printHelp
 
